@@ -1,0 +1,116 @@
+{
+ "v": 1,
+ "nota": "Prioridade é estimativa a partir do que o professor mais trabalhou em aula e nos exercícios da UP2. Não é oficial.",
+ "mapas": [
+  {
+   "s": "HER",
+   "r": [
+    {
+     "t": "HER-2",
+     "p": "alta",
+     "n": "super(...) no construtor é o erro mais cobrado no código no papel."
+    },
+    {
+     "t": "HER-0",
+     "p": "alta",
+     "n": "Base de tudo: extends, o que é herdado e o que não é."
+    },
+    {
+     "t": "HER-4",
+     "p": "media",
+     "n": "Variável da superclasse com objeto da subclasse e cast: caiu no exemplo do Pix."
+    },
+    {
+     "t": "HER-3",
+     "p": "media",
+     "n": "private x protected decide se o código da subclasse compila."
+    },
+    {
+     "t": "HER-1",
+     "p": "baixa",
+     "n": "Conceito: \"é um\" x \"tem um\" e hierarquia."
+    }
+   ]
+  },
+  {
+   "s": "ABS",
+   "r": [
+    {
+     "t": "ABS-0",
+     "p": "alta",
+     "n": "Não instanciar classe abstrata: questão certa de teoria."
+    },
+    {
+     "t": "ABS-1",
+     "p": "media",
+     "n": "Complemento: regras do método abstrato aparecem em \"ache o erro\"."
+    }
+   ]
+  },
+  {
+   "s": "POL",
+   "r": [
+    {
+     "t": "POL-1",
+     "p": "alta",
+     "n": "Sobrecarga: tem exercício dedicado (Personagem) e regras fáceis de cobrar."
+    },
+    {
+     "t": "POL-2",
+     "p": "alta",
+     "n": "Sobreposição: tem exercício dedicado (Produto) e o estudo de caso da Avaliação."
+    },
+    {
+     "t": "POL-0",
+     "p": "alta",
+     "n": "Diferença entre sobrecarga e sobreposição: clássica da prova teórica."
+    },
+    {
+     "t": "POL-3",
+     "p": "media",
+     "n": "Qual versão roda com variável da superclasse."
+    }
+   ]
+  },
+  {
+   "s": "EXC",
+   "r": [
+    {
+     "t": "EXC-1",
+     "p": "alta",
+     "n": "Estrutura try/catch/finally e o fluxo de execução."
+    },
+    {
+     "t": "EXC-4",
+     "p": "alta",
+     "n": "Reconhecer a exceção pelo código: base do exercício do faturamento."
+    },
+    {
+     "t": "EXC-2",
+     "p": "media",
+     "n": "Ordem dos catch: erro de compilação clássico."
+    },
+    {
+     "t": "EXC-3",
+     "p": "media",
+     "n": "throw x throws (o slide trocou os dois)."
+    },
+    {
+     "t": "EXC-0",
+     "p": "baixa",
+     "n": "Conceito e motivos para tratar exceções."
+    }
+   ]
+  },
+  {
+   "s": "KEY",
+   "r": [
+    {
+     "t": "KEY-0",
+     "p": "alta",
+     "n": "Vocabulário que aparece em todas as questões."
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Estudo POO · UP2</title>
+<meta name="theme-color" content="#2F45B5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="POO UP2">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F0F2F4;--surface:#FFFFFF;--ink:#14202B;--muted:#5A6672;--line:#D8DDE2;--soft:#E7EAED;
+  --accent:#2F45B5;--accent-ink:#FFFFFF;--ok:#1E7B57;--ok-soft:#E3F2EB;--bad:#B3261E;--bad-soft:#F8E4E1;--warn:#8A5A12;
+  --f-display:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;
+  --f-body:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0E151C;--surface:#16202A;--ink:#E8EDF1;--muted:#9AA6B1;--line:#2A3743;--soft:#1F2B36;
+  --accent:#8C9CFF;--accent-ink:#0B1030;--ok:#5CC49A;--ok-soft:#14322A;--bad:#F0806F;--bad-soft:#3A1E1A;--warn:#E0A64E;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+input,textarea,select{font-size:16px!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;
+  padding:calc(env(safe-area-inset-top,0px) + 14px) 14px calc(env(safe-area-inset-bottom,0px) + 86px)}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;line-height:1.1;margin:0}
+h1{font-size:1.9rem;text-transform:uppercase;letter-spacing:.01em}
+h2{font-size:1.45rem;text-transform:uppercase}
+p{margin:0}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.muted{color:var(--muted)}
+.label{font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.sync{font-size:.78rem;color:var(--muted);text-align:right}
+.card{background:var(--surface);border:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.seg{display:flex;border:1.5px solid var(--ink);width:100%}
+.seg button{flex:1;border:0;background:transparent;padding:9px 6px;font-weight:600;font-size:.92rem;border-right:1.5px solid var(--ink)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--line);background:var(--surface);padding:5px 11px;font-size:.88rem;font-weight:600}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.chip small{font-weight:500;opacity:.75}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;padding:13px 18px;font-weight:600;font-size:1rem;min-height:48px}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.btn.small{padding:7px 12px;min-height:36px;font-size:.9rem}
+.btn[disabled]{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grow{flex:1}
+
+/* questão */
+.qmeta{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.tag{font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid currentColor;padding:1px 7px;color:var(--muted)}
+.tag.ce{color:var(--warn)}
+.qtext{font-size:1.08rem;font-weight:500;overflow-wrap:anywhere}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:2rem minmax(0,1fr);gap:8px;align-items:start;text-align:left;width:100%;
+  background:var(--surface);border:1.5px solid var(--line);padding:11px 12px;min-height:50px;font-size:1rem}
+.opt b{font-family:var(--f-display);font-size:1.2rem;line-height:1.2}
+.opt span{overflow-wrap:anywhere}
+.opt:hover:not([disabled]){border-color:var(--ink)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt[disabled]{cursor:default}
+.ce-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ce-opts .opt{grid-template-columns:1fr;text-align:center;font-weight:600;font-size:1.05rem}
+.fb{border-left:5px solid var(--ok);background:var(--ok-soft);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.fb.bad{border-color:var(--bad);background:var(--bad-soft)}
+.fb strong{font-size:1.02rem}
+.src{font-size:.78rem;color:var(--muted)}
+.linkbtn{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;font-size:.82rem}
+.sess{display:flex;gap:14px;align-items:baseline}
+.big{font-family:var(--f-display);font-weight:700;font-size:2rem;line-height:1;font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--soft);position:relative;width:100%}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--accent);display:block}
+.bar.ok i{background:var(--ok)}
+
+/* listas */
+.subj{border-top:1px solid var(--line);padding-top:10px}
+details.sj{background:var(--surface);border:1px solid var(--line)}
+details.sj>summary{list-style:none;cursor:pointer;padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}
+details.sj>summary::-webkit-details-marker{display:none}
+details.sj>summary .bar{grid-column:1/-1}
+details.sj>summary .n{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem}
+.items{border-top:1px solid var(--line);padding:4px 0}
+.top-item{border-top:1px solid var(--line)}
+.top-item:first-child{border-top:0}
+.top-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;padding:10px 14px;align-items:center}
+.top-row input{width:22px;height:22px;accent-color:var(--accent);margin:0}
+.top-row .tt{font-weight:500;overflow-wrap:anywhere}
+.top-item.done .tt{color:var(--muted);text-decoration:line-through}
+.rbtn{border:1.5px solid var(--line);background:transparent;padding:4px 10px;font-size:.82rem;font-weight:600;white-space:nowrap}
+.rbtn[aria-expanded="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.resumo{margin:0 14px 12px 46px;padding:10px 12px;background:var(--soft);border-left:4px solid var(--accent);font-size:.95rem}
+.resumo ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
+.sjmeta{font-size:.78rem;color:var(--muted);font-weight:500}
+.item{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;padding:9px 14px;align-items:start;cursor:pointer}
+.item input{width:22px;height:22px;accent-color:var(--accent);margin:1px 0 0}
+.item.done span{color:var(--muted);text-decoration:line-through}
+.stat{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.stat:last-child{border-bottom:0}
+.stat .n{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem}
+.stat .bar{grid-column:1/-1}
+.err{border-top:1px solid var(--line);padding:10px 0;display:flex;flex-direction:column;gap:4px}
+.empty{padding:20px;text-align:center;color:var(--muted)}
+.tema{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.tema input{width:22px;height:22px;accent-color:var(--accent)}
+.tema .c{font-size:.88rem;color:var(--muted)}
+
+/* barra inferior */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav.tabs button{background:none;border:0;padding:9px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.72rem;font-weight:600;color:var(--muted)}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button[aria-current="page"]{color:var(--accent)}
+nav.tabs .dot{min-width:18px;padding:0 4px;height:16px;border-radius:8px;background:var(--accent);color:var(--accent-ink);font-size:.66rem;line-height:16px;position:absolute;margin-left:22px;margin-top:-4px}
+nav.tabs button{position:relative}
+/* menu inicial */
+body[data-area="inicio"],body[data-area="tango"],body[data-area="mapas"]{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 28px)}
+.menu{display:grid;grid-template-columns:1fr;gap:14px}
+.mcard{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;text-align:left;width:100%;background:var(--surface);border:1.5px solid var(--ink);padding:18px 16px;min-height:132px}
+.mcard:hover{border-color:var(--accent)}
+.mcard h2{margin-bottom:4px}
+.mcard p{color:var(--muted);font-size:.95rem}
+.mcard .st{margin-top:8px;font-size:.85rem;font-weight:600;font-variant-numeric:tabular-nums;min-height:1.2em}
+.mart{width:64px;height:84px;color:var(--ink);flex:none}
+.back{display:inline-flex;align-items:center;gap:4px}
+
+/* tangochō */
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:10px 14px 14px}
+.ringbk{position:relative;text-align:left;background:var(--surface);border:1.5px solid var(--line);padding:12px 10px 10px 36px;min-height:104px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.ringbk:hover{border-color:var(--ink)}
+.ringbk::before{content:"";position:absolute;left:8px;top:8px;bottom:8px;width:14px;
+  background:radial-gradient(circle,transparent 0 3px,var(--ink) 3px 5px,transparent 5px) 0 0/14px 24px repeat-y}
+.ringbk b{font-family:var(--f-display);font-size:1.14rem;line-height:1.1;overflow-wrap:anywhere}
+.ringbk .n{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.ringbk .bar{margin-top:auto}
+.sjtools{padding:10px 14px 0}
+.stack{position:relative;perspective:1300px;margin:6px 0 6px 16px}
+.under{position:absolute;inset:0;background:var(--surface);border:1.5px solid var(--line)}
+.under.u2{transform:translate(9px,9px)}
+.under.u1{transform:translate(4px,4px);overflow:hidden;border-color:var(--ink)}
+.uf{padding:22px 20px 18px 34px;display:flex;flex-direction:column;gap:10px;justify-content:center;height:100%}
+.page{position:relative;transform-origin:0 50%;transform-style:preserve-3d;z-index:2}
+.page.turn{animation:tgturn .5s cubic-bezier(.45,0,.75,.35) forwards}
+@keyframes tgturn{0%{transform:rotateY(0);opacity:1}70%{opacity:1}100%{transform:rotateY(-105deg);opacity:0}}
+.flip{display:grid;transform-style:preserve-3d;transition:transform .5s;min-height:270px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.flip.is-flipped{transform:rotateY(180deg)}
+.face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border:1.5px solid var(--ink);
+  padding:22px 20px 18px 34px;display:flex;flex-direction:column;gap:10px;justify-content:center;min-width:0}
+.face.verso{transform:rotateY(180deg);background:var(--soft);border-left:6px solid var(--accent);padding-left:30px}
+.bt{font-size:1.28rem;font-weight:500;overflow-wrap:anywhere;line-height:1.4}
+.ring{position:absolute;left:-15px;width:30px;height:30px;border:4px solid var(--ink);border-radius:50%;z-index:4;pointer-events:none}
+.ring.r1{top:16%}
+.ring.r2{bottom:16%}
+.btn.okb{background:var(--ok);color:var(--accent-ink)}
+.tgmsg{border-left:5px solid var(--warn);background:var(--soft);padding:10px 12px;font-size:.95rem}
+@media (prefers-reduced-motion:reduce){.flip{transition:none}.page.turn{animation:none;opacity:0}}
+.mpc{border:1.5px solid var(--ink);background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.mpc b{font-family:var(--f-display);font-size:1.5rem;line-height:1.05}
+.mpc span{font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.mpleg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.82rem;color:var(--muted)}
+.mpleg i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px}
+.mpt{margin-left:12px;padding-left:14px;border-left:2px solid var(--ink);display:flex;flex-direction:column;gap:10px}
+details.mpb{position:relative;background:var(--surface);border:1.5px solid var(--line);border-left-width:6px}
+details.mpb::before{content:"";position:absolute;left:-22px;top:26px;width:16px;border-top:2px solid var(--ink)}
+details.mpb.pa{border-left-color:var(--accent)}details.mpb.pm{border-left-color:var(--ink)}details.mpb.pb{border-left-color:var(--muted)}
+details.mpb>summary{cursor:pointer;list-style:none;padding:12px 12px 10px;display:flex;flex-direction:column;gap:6px}
+details.mpb>summary::-webkit-details-marker{display:none}
+details.mpb>summary b{font-size:1.02rem;line-height:1.25;overflow-wrap:anywhere}
+.mpn{font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.mpbody{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
+.mpwhy{font-size:.92rem;color:var(--muted);border-left:3px solid var(--line);padding-left:10px}
+details.mpl{border:1px solid var(--line);background:var(--bg)}
+details.mpl>summary{cursor:pointer;list-style:none;padding:9px 10px;display:grid;grid-template-columns:14px minmax(0,1fr);gap:8px;align-items:start;font-size:.96rem}
+details.mpl>summary::-webkit-details-marker{display:none}
+.dot{width:12px;height:12px;border:2px solid var(--accent);border-radius:50%;margin-top:4px}
+.dot.ok{background:var(--ok);border-color:var(--ok)}
+.mpans{padding:2px 10px 10px 32px;font-size:.96rem;line-height:1.45;overflow-wrap:anywhere}
+.mpans .src{display:block;margin-top:6px}
+[hidden]{display:none!important}
+
+/* código */
+:root{--f-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--soft);padding:1px 4px;overflow-wrap:anywhere}
+pre.code{font-family:var(--f-mono);font-size:.8rem;line-height:1.55;background:var(--soft);border-left:4px solid var(--accent);
+  margin:0;padding:10px 12px;overflow-x:auto;white-space:pre;-webkit-overflow-scrolling:touch;tab-size:4}
+.opt pre.code{border-left:0;background:transparent;padding:0;font-size:.78rem}
+.resumo pre.code{margin:2px 0;background:var(--surface)}
+.resumo li.blk{list-style:none;margin-left:-1.1em}
+.bt code,.mpans code{font-size:.8em}
+input.gap{font-family:var(--f-mono);font-size:16px!important;border:0;border-bottom:2px solid var(--accent);background:var(--surface);color:var(--ink);
+  padding:1px 4px;margin:0 1px;min-width:4ch;border-radius:0;vertical-align:baseline}
+input.gap:focus{outline:2px solid var(--accent);outline-offset:1px}
+input.gap.right{border-color:var(--ok);background:var(--ok-soft)}
+input.gap.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.gapfix{font-family:var(--f-mono);font-size:.85rem;display:flex;flex-direction:column;gap:2px}
+.lines{background:var(--soft);border-left:4px solid var(--accent);overflow-x:auto;-webkit-overflow-scrolling:touch;padding:6px 0}
+.lines button{display:grid;grid-template-columns:2.2em max-content;width:100%;min-width:max-content;text-align:left;border:0;border-top:1px solid transparent;border-bottom:1px solid transparent;background:transparent;
+  font-family:var(--f-mono);font-size:.8rem;line-height:1.5;padding:4px 12px 4px 4px;white-space:pre;color:var(--ink);min-height:34px;align-items:center}
+.lines button i{font-style:normal;color:var(--muted);text-align:right;padding-right:10px;font-size:.72rem}
+.lines button:hover:not([disabled]){background:var(--surface)}
+.lines button.right{background:var(--ok-soft);border-color:var(--ok)}
+.lines button.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.lines button[disabled]{cursor:default}
+.tipo{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top" id="hdrQ" hidden>
+    <div>
+      <button class="linkbtn" id="toInicio" style="margin-bottom:4px">‹ Início</button>
+      <div class="label">POO · UP2 · UNIT</div>
+      <h1>Questões</h1>
+    </div>
+    <div class="sync">Progresso salvo neste aparelho</div>
+  </header>
+
+  <!-- INÍCIO -->
+  <section id="v-inicio" class="view">
+    <header class="top">
+      <div>
+        <div class="label">Desenvolvimento Orientado a Objetos · UP2</div>
+        <h1>Estudo POO</h1>
+      </div>
+      <div class="sync">Progresso salvo neste aparelho</div>
+    </header>
+    <p class="muted" style="font-size:.95rem;margin-top:10px">Herança, classe abstrata, polimorfismo e tratamento de exceção: o conteúdo postado depois da Prova UP1.</p>
+    <div class="menu" style="margin-top:6px">
+      <button class="mcard" id="goRes">
+        <svg class="mart" viewBox="0 0 64 84" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M8 8h34l14 14v56H8z"/><path d="M42 8v14h14" /><path d="M18 36h28M18 46h28M18 56h18" stroke="var(--accent)" stroke-width="2.5"/></svg>
+        <div><h2>Resumos</h2><p>O conteúdo explicado, com os códigos das aulas e as regras que caem na prova.</p><div class="st" id="stR"></div></div>
+      </button>
+      <button class="mcard" id="goTango">
+        <svg class="mart" viewBox="0 0 64 84" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><rect x="14" y="6" width="44" height="64" transform="translate(4 8)" opacity=".35"/><rect x="10" y="6" width="44" height="64"/><circle cx="10" cy="22" r="7" stroke="var(--accent)"/><circle cx="10" cy="54" r="7" stroke="var(--accent)"/><path d="M22 30h22M22 40h16" stroke-width="2.5"/></svg>
+        <div><h2>Tangochō</h2><p>Cartões de revisão por tema, incluindo as palavras-chave do Java (extends, super, @Override, throw...).</p><div class="st" id="stT"></div></div>
+      </button>
+      <button class="mcard" id="goMapas">
+        <svg class="mart" viewBox="0 0 64 84" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><circle cx="32" cy="42" r="9" stroke="var(--accent)"/><path d="M32 33V14M23 46L10 58M41 46l13 12"/><rect x="22" y="4" width="20" height="10"/><rect x="2" y="58" width="20" height="10"/><rect x="42" y="58" width="20" height="10"/></svg>
+        <div><h2>Mapas</h2><p>Um mapa mental por assunto, com os ramos por prioridade e o que ainda falta.</p><div class="st" id="stM"></div></div>
+      </button>
+      <button class="mcard" id="goQuest">
+        <svg class="mart" viewBox="0 0 64 84" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><rect x="8" y="6" width="48" height="64"/><path d="M18 24l4 4 8-9" stroke="var(--accent)"/><path d="M36 24h12M18 44l4 4 8-9" /><path d="M36 44h12" /></svg>
+        <div><h2>Questões</h2><p>Múltipla escolha com código, complete o código, ache o erro e certo/errado.</p><div class="st" id="stQ"></div></div>
+      </button>
+    </div>
+  </section>
+
+  <!-- MAPAS -->
+  <section id="v-mapas" class="view" hidden>
+    <div class="row"><button class="btn ghost small back" id="mpHome">‹ Início</button><span class="grow"></span><span class="label">Mapas</span></div>
+    <div id="mpBody" style="display:flex;flex-direction:column;gap:12px"></div>
+  </section>
+
+  <!-- TREINO -->
+  <section id="v-treino" class="view" hidden>
+    <div class="card" id="setup">
+      <div class="label">Assuntos <span style="text-transform:none;letter-spacing:0;font-weight:400">(nenhum marcado = todos)</span></div>
+      <div class="chips" id="subjchips"></div>
+      <div class="label">Tipo de questão <span style="text-transform:none;letter-spacing:0;font-weight:400">(nenhum marcado = todos)</span></div>
+      <div class="chips" id="typechips"></div>
+      <div class="label">Quais questões</div>
+      <div class="seg" id="modeseg">
+        <button data-mode="new" aria-pressed="true">Novas</button>
+        <button data-mode="wrong" aria-pressed="false">Erradas</button>
+        <button data-mode="rand" aria-pressed="false">Qualquer</button>
+      </div>
+      <div class="row">
+        <button class="btn grow" id="start">Começar</button>
+      </div>
+      <p class="muted" id="poolinfo" style="font-size:.9rem"></p>
+    </div>
+
+    <div id="quiz" hidden style="display:flex;flex-direction:column;gap:12px">
+      <div class="row">
+        <div class="sess grow"><span class="big" id="sessScore">0/0</span><span class="muted" id="sessLeft"></span></div>
+        <button class="btn ghost small" id="stop">Encerrar</button>
+      </div>
+      <div class="card" id="qcard"></div>
+    </div>
+
+    <div class="card" id="summary" hidden></div>
+  </section>
+
+  <!-- RESUMOS -->
+  <section id="v-conteudos" class="view" hidden>
+    <div class="card">
+      <div class="row"><h2 class="grow">Resumos da UP2</h2><span class="big" id="chkTotal">0%</span></div>
+      <div class="bar ok"><i id="chkBar" style="width:0"></i></div>
+      <p class="muted" style="font-size:.92rem">Toque em <b>Resumo</b> para ler o tópico explicado, marque quando dominar e use <b>Treinar</b> para ir às questões do assunto.</p>
+    </div>
+    <div id="chklist" style="display:flex;flex-direction:column;gap:8px"></div>
+  </section>
+
+  <!-- ERROS -->
+  <section id="v-erros" class="view" hidden>
+    <div class="card">
+      <div class="row"><h2 class="grow">Caderno de erros</h2><span class="big" id="errCount">0</span></div>
+      <p class="muted" style="font-size:.92rem">Uma questão sai daqui quando você acerta ela na revisão.</p>
+      <button class="btn" id="redoErr">Refazer as erradas</button>
+    </div>
+    <div class="card" id="errlist"></div>
+  </section>
+
+  <!-- PROGRESSO -->
+  <section id="v-progresso" class="view" hidden>
+    <div class="card">
+      <h2>Desempenho</h2>
+      <div class="row" style="gap:24px">
+        <div><div class="label">Respondidas</div><span class="big" id="pAns">0</span></div>
+        <div><div class="label">Acertos</div><span class="big" id="pPct">–</span></div>
+        <div><div class="label">Meta</div><span class="big">75%</span></div>
+      </div>
+    </div>
+    <div class="card"><div class="label">Por assunto</div><div id="pstats"></div></div>
+    <div class="card"><div class="label">Por tipo de questão</div><div id="tstats"></div></div>
+    <div class="card"><div class="label">Últimas respostas</div><div id="hist"></div></div>
+    <div class="card">
+      <div class="label">Cópia de segurança</div>
+      <p class="muted" style="font-size:.9rem">O progresso fica guardado no aparelho e funciona sem internet. Para não perder nada ao trocar de celular ou limpar o navegador, copie o código abaixo (ele inclui também o Tangochō) e guarde. Para restaurar, cole o código e toque em Restaurar.</p>
+      <div class="row"><button class="btn ghost small" id="bkCopy">Copiar código</button><button class="btn ghost small" id="bkShow">Mostrar código</button></div>
+      <textarea id="bkText" rows="4" style="width:100%;font:inherit;padding:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)" placeholder="Cole aqui um código de cópia de segurança"></textarea>
+      <div class="row"><button class="btn small" id="bkLoad">Restaurar</button><span class="muted" id="bkMsg" style="font-size:.9rem"></span></div>
+    </div>
+    <div class="card">
+      <div class="label">Sobre as questões</div>
+      <p class="muted" style="font-size:.9rem" id="about"></p>
+      <button class="btn ghost small" id="reset" style="width:fit-content">Zerar meu progresso</button>
+      <div id="resetConfirm" hidden class="row"><span class="grow">Apagar respostas e checklist?</span><button class="btn small" id="resetYes">Apagar</button><button class="btn ghost small" id="resetNo">Cancelar</button></div>
+    </div>
+  </section>
+
+  <!-- TANGOCHŌ -->
+  <section id="v-tango" class="view" hidden>
+    <div class="row"><button class="btn ghost small back" id="tgHome">‹ Início</button><span class="grow"></span><span class="label">Tangochō</span></div>
+    <div id="tgShelf" style="display:flex;flex-direction:column;gap:12px"></div>
+    <div id="tgDeck" style="display:flex;flex-direction:column;gap:12px" hidden></div>
+    <div id="tgSum" class="card" hidden></div>
+  </section>
+</div>
+
+<nav class="tabs" id="tabs" hidden>
+  <button data-v="treino" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Treino</button>
+  <button data-v="conteudos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>Resumos</button>
+  <button data-v="erros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Erros<span class="dot" id="errDot" hidden></span></button>
+  <button data-v="progresso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-6"/></svg>Progresso</button>
+</nav>
+
+<script src="app.js"></script>
+</body>
+</html>

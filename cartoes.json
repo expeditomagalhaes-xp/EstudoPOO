@@ -1,0 +1,560 @@
+{
+ "v": 1,
+ "fonte": "Cartões feitos a partir das aulas 05, 06 e 07 do Prof. Aldo Moura (UNIT 2026.2).",
+ "temas": [
+  {
+   "id": "HER-0",
+   "s": "HER",
+   "t": "Por que existe herança",
+   "c": [
+    {
+     "id": "t-HER-0-1",
+     "p": "Qual problema a herança resolve?",
+     "r": "**Duplicidade de código.** Atributos e métodos comuns (id, data, valor) ficam numa superclasse, em vez de serem repetidos em cada classe."
+    },
+    {
+     "id": "t-HER-0-2",
+     "p": "Superclasse x subclasse",
+     "r": "**Superclasse** é a classe-mãe, com o que é comum. **Subclasse** é a filha, que herda da mãe e acrescenta o que é só dela."
+    },
+    {
+     "id": "t-HER-0-3",
+     "p": "Qual palavra faz uma classe herdar de outra?",
+     "r": "**extends**. Ex.: `public class PagamentoPix extends Pagamento`."
+    },
+    {
+     "id": "t-HER-0-4",
+     "p": "O que a subclasse NÃO herda?",
+     "r": "Os **construtores**. Ela herda os demais membros e pode acrescentar os seus."
+    },
+    {
+     "id": "t-HER-0-5",
+     "p": "Uma classe pode estender duas classes?",
+     "r": "**Não.** `class A extends B, C` não compila: Java não tem herança múltipla de classes."
+    }
+   ]
+  },
+  {
+   "id": "HER-1",
+   "s": "HER",
+   "t": "\"É um\" x \"tem um\" e hierarquia",
+   "c": [
+    {
+     "id": "t-HER-1-1",
+     "p": "Herança é um relacionamento do tipo...",
+     "r": "**\"É um\"**: Pix *é um* Pagamento, trem *é um* transporte."
+    },
+    {
+     "id": "t-HER-1-2",
+     "p": "Associação/agregação/composição são do tipo...",
+     "r": "**\"Tem um\"**: caminhão *tem um* motor. O motor vira **atributo**, não superclasse."
+    },
+    {
+     "id": "t-HER-1-3",
+     "p": "Superclasse direta x indireta",
+     "r": "**Direta**: a classe logo acima (a do extends). **Indireta**: qualquer classe mais acima na hierarquia."
+    },
+    {
+     "id": "t-HER-1-4",
+     "p": "De qual classe toda classe Java herda?",
+     "r": "De **Object**, direta ou indiretamente. É de lá que vem o `toString()`."
+    }
+   ]
+  },
+  {
+   "id": "HER-2",
+   "s": "HER",
+   "t": "Construtores e super(...)",
+   "c": [
+    {
+     "id": "t-HER-2-1",
+     "p": "Para que serve super(...) no construtor da subclasse?",
+     "r": "Chama o **construtor da superclasse** para inicializar os atributos herdados."
+    },
+    {
+     "id": "t-HER-2-2",
+     "p": "Onde fica o super(...) no construtor?",
+     "r": "Na **primeira linha** do construtor da subclasse."
+    },
+    {
+     "id": "t-HER-2-3",
+     "p": "A superclasse só tem `Pagamento(double valor)`. O que acontece se a subclasse não chamar super(valor)?",
+     "r": "**Erro de compilação.** O Java tenta `super()` sem parâmetros, que não existe."
+    },
+    {
+     "id": "t-HER-2-4",
+     "p": "this x super",
+     "r": "**this** = o próprio objeto (`this.chave`). **super** = a parte da superclasse (`super(valor)`, `super.metodo()`)."
+    },
+    {
+     "id": "t-HER-2-5",
+     "p": "O que faz `private static int ultimoId` em Pagamento?",
+     "r": "É um contador **da classe**, compartilhado por todos os objetos. `this.id = ++ultimoId` gera ids 1, 2, 3..."
+    }
+   ]
+  },
+  {
+   "id": "HER-3",
+   "s": "HER",
+   "t": "private, protected e acesso",
+   "c": [
+    {
+     "id": "t-HER-3-1",
+     "p": "A subclasse acessa direto um atributo private da superclasse?",
+     "r": "**Não.** Usa o getter (ex.: `getValor()`). Acesso direto não compila."
+    },
+    {
+     "id": "t-HER-3-2",
+     "p": "O que o protected permite?",
+     "r": "Acesso pela **subclasse** e pelas classes do **mesmo pacote**."
+    },
+    {
+     "id": "t-HER-3-3",
+     "p": "Por que `nota` é protected em Avaliacao?",
+     "r": "Porque a subclasse `AvaliacaoNeurodivergente` precisa **alterar** `this.nota` no acréscimo."
+    },
+    {
+     "id": "t-HER-3-4",
+     "p": "Modificador default (sem palavra)",
+     "r": "Acesso só para classes do **mesmo pacote**."
+    }
+   ]
+  },
+  {
+   "id": "HER-4",
+   "s": "HER",
+   "t": "Referência da superclasse e cast",
+   "c": [
+    {
+     "id": "t-HER-4-1",
+     "p": "`Pagamento p = new PagamentoPix(...)` compila?",
+     "r": "**Sim.** Pix *é um* Pagamento, então a variável da superclasse aceita o objeto da subclasse."
+    },
+    {
+     "id": "t-HER-4-2",
+     "p": "Com `Pagamento p = new PagamentoPix(...)`, `p.getChave()` compila?",
+     "r": "**Não.** A variável é do tipo Pagamento, que não tem getChave(). Precisa de cast."
+    },
+    {
+     "id": "t-HER-4-3",
+     "p": "Como chamar getChave() a partir de `Pagamento p`?",
+     "r": "`((PagamentoPix) p).getChave()`"
+    },
+    {
+     "id": "t-HER-4-4",
+     "p": "O que dá um cast para o tipo errado?",
+     "r": "Compila, mas lança **ClassCastException** ao executar."
+    },
+    {
+     "id": "t-HER-4-5",
+     "p": "Como testar o tipo antes do cast?",
+     "r": "`if (p instanceof PagamentoPix) { ... }`"
+    }
+   ]
+  },
+  {
+   "id": "ABS-0",
+   "s": "ABS",
+   "t": "Classe abstrata",
+   "c": [
+    {
+     "id": "t-ABS-0-1",
+     "p": "O que é uma classe abstrata?",
+     "r": "Classe declarada com **abstract** que **não pode ser instanciada**. Serve só de base para subclasses."
+    },
+    {
+     "id": "t-ABS-0-2",
+     "p": "Quando usar classe abstrata?",
+     "r": "Quando **não existe objeto genérico**: não há Pessoa que não seja física ou jurídica."
+    },
+    {
+     "id": "t-ABS-0-3",
+     "p": "`new Pessoa(...)` com Pessoa abstrata",
+     "r": "**Erro de compilação.** Instancie a subclasse: `new PessoaFisica(...)`."
+    },
+    {
+     "id": "t-ABS-0-4",
+     "p": "`Pessoa p = new PessoaFisica(...)` compila com Pessoa abstrata?",
+     "r": "**Sim.** O tipo da variável pode ser abstrato; o objeto é que precisa ser concreto."
+    },
+    {
+     "id": "t-ABS-0-5",
+     "p": "Classe abstrata pode ter construtor?",
+     "r": "**Sim**, e atributos e métodos com código. O construtor é chamado pelas subclasses com super(...)."
+    }
+   ]
+  },
+  {
+   "id": "ABS-1",
+   "s": "ABS",
+   "t": "Método abstrato",
+   "c": [
+    {
+     "id": "t-ABS-1-1",
+     "p": "Como se escreve um método abstrato?",
+     "r": "Sem corpo, terminando em ponto e vírgula: `public abstract double calcularTaxa();`"
+    },
+    {
+     "id": "t-ABS-1-2",
+     "p": "Uma classe comum pode ter método abstrato?",
+     "r": "**Não.** Se tem método abstrato, a classe precisa ser abstract."
+    },
+    {
+     "id": "t-ABS-1-3",
+     "p": "Subclasse concreta que não implementa o método abstrato herdado",
+     "r": "**Erro de compilação.** Ela é obrigada a implementar (ou ser abstrata também)."
+    }
+   ]
+  },
+  {
+   "id": "POL-0",
+   "s": "POL",
+   "t": "O que é polimorfismo",
+   "c": [
+    {
+     "id": "t-POL-0-1",
+     "p": "O que é polimorfismo?",
+     "r": "Um **mesmo método com vários comportamentos**."
+    },
+    {
+     "id": "t-POL-0-2",
+     "p": "Quais os dois tipos vistos em aula?",
+     "r": "**Sobrecarga (overload)** e **sobreposição (override)**."
+    },
+    {
+     "id": "t-POL-0-3",
+     "p": "O que é a assinatura de um método?",
+     "r": "**Nome + lista de parâmetros** (quantidade, tipos e ordem). O retorno não entra."
+    }
+   ]
+  },
+  {
+   "id": "POL-1",
+   "s": "POL",
+   "t": "Sobrecarga (overload)",
+   "c": [
+    {
+     "id": "t-POL-1-1",
+     "p": "Sobrecarga: onde e como?",
+     "r": "Na **mesma classe**, mesmo nome, **parâmetros diferentes**."
+    },
+    {
+     "id": "t-POL-1-2",
+     "p": "O que pode mudar para ser sobrecarga válida?",
+     "r": "A **quantidade**, o **tipo** ou a **ordem dos tipos** dos parâmetros."
+    },
+    {
+     "id": "t-POL-1-3",
+     "p": "Dois métodos iguais que mudam só o tipo de retorno",
+     "r": "**Erro de compilação.** Não é sobrecarga: o retorno não faz parte da assinatura."
+    },
+    {
+     "id": "t-POL-1-4",
+     "p": "Dois métodos iguais que mudam só o nome dos parâmetros",
+     "r": "**Erro de compilação.** `calc(int a)` e `calc(int b)` têm a mesma assinatura."
+    },
+    {
+     "id": "t-POL-1-5",
+     "p": "Quem decide qual versão sobrecarregada roda?",
+     "r": "O **Java, pelos argumentos** passados na chamada."
+    },
+    {
+     "id": "t-POL-1-6",
+     "p": "Exemplo de sobrecarga da aula",
+     "r": "`administrarMedicacao(int qtde)` e `administrarMedicacao(double peso, double dosagemPorQuilo)` no Dosador."
+    }
+   ]
+  },
+  {
+   "id": "POL-2",
+   "s": "POL",
+   "t": "Sobreposição (override)",
+   "c": [
+    {
+     "id": "t-POL-2-1",
+     "p": "Sobreposição: onde e como?",
+     "r": "Na **subclasse**, reescrevendo o método da superclasse com a **mesma assinatura**."
+    },
+    {
+     "id": "t-POL-2-2",
+     "p": "Para que serve @Override?",
+     "r": "Avisa o compilador que o método sobrescreve outro. Se a assinatura não bater, **dá erro de compilação**."
+    },
+    {
+     "id": "t-POL-2-3",
+     "p": "Como reaproveitar a versão da superclasse dentro do override?",
+     "r": "Chamando `super.nomeDoMetodo(...)`."
+    },
+    {
+     "id": "t-POL-2-4",
+     "p": "Na mãe o método é public. Na filha pode ser protected?",
+     "r": "**Não.** A sobreposição não pode **diminuir a visibilidade**."
+    },
+    {
+     "id": "t-POL-2-5",
+     "p": "Exemplo de sobreposição da aula",
+     "r": "`contabilizarNotas(...)` em `AvaliacaoNeurodivergente`, que aplica +10% e +10% por nível de TEA, limitado a 1000."
+    },
+    {
+     "id": "t-POL-2-6",
+     "p": "O que significa final numa variável?",
+     "r": "**Constante**: não pode receber outro valor. Ex.: `final double INDICE`."
+    }
+   ]
+  },
+  {
+   "id": "POL-3",
+   "s": "POL",
+   "t": "Qual versão roda?",
+   "c": [
+    {
+     "id": "t-POL-3-1",
+     "p": "`Avaliacao av = new AvaliacaoNeurodivergente(...)`; `av.contabilizarNotas(...)` roda qual versão?",
+     "r": "A da **subclasse** (AvaliacaoNeurodivergente). No override, vale o **objeto**."
+    },
+    {
+     "id": "t-POL-3-2",
+     "p": "Variável x objeto: quem decide o quê?",
+     "r": "A **variável** decide o que pode ser chamado (compila ou não). O **objeto** decide qual código roda."
+    }
+   ]
+  },
+  {
+   "id": "EXC-0",
+   "s": "EXC",
+   "t": "O que é uma exceção",
+   "c": [
+    {
+     "id": "t-EXC-0-1",
+     "p": "O que é uma exceção?",
+     "r": "Um **evento anormal durante a execução** que, sem tratamento, interrompe o programa."
+    },
+    {
+     "id": "t-EXC-0-2",
+     "p": "Três motivos para tratar exceções",
+     "r": "**Prevenir interrupções**, **controlar o fluxo** e **facilitar a depuração**."
+    },
+    {
+     "id": "t-EXC-0-3",
+     "p": "`int x = 10 / 0;`",
+     "r": "Lança **ArithmeticException**."
+    },
+    {
+     "id": "t-EXC-0-4",
+     "p": "`double x = 10.0 / 0;`",
+     "r": "**Não lança exceção.** O resultado é `Infinity`."
+    }
+   ]
+  },
+  {
+   "id": "EXC-1",
+   "s": "EXC",
+   "t": "try, catch e finally",
+   "c": [
+    {
+     "id": "t-EXC-1-1",
+     "p": "Para que serve o try?",
+     "r": "Envolve o código que **pode** lançar exceção."
+    },
+    {
+     "id": "t-EXC-1-2",
+     "p": "Para que serve o catch?",
+     "r": "**Captura e trata** um tipo de exceção lançada no try."
+    },
+    {
+     "id": "t-EXC-1-3",
+     "p": "Quando o finally executa?",
+     "r": "**Sempre**, com ou sem exceção. Ideal para fechar Scanner, arquivo e conexão."
+    },
+    {
+     "id": "t-EXC-1-4",
+     "p": "Se a 2ª linha do try lança exceção, a 3ª roda?",
+     "r": "**Não.** O fluxo pula direto para o catch correspondente."
+    },
+    {
+     "id": "t-EXC-1-5",
+     "p": "`try { ... }` sem catch nem finally compila?",
+     "r": "**Não.** Precisa de pelo menos um catch ou um finally."
+    },
+    {
+     "id": "t-EXC-1-6",
+     "p": "O que fazem e.getMessage() e e.printStackTrace()?",
+     "r": "`getMessage()` devolve a **mensagem** do erro. `printStackTrace()` mostra a **pilha** de chamadas, para depurar."
+    }
+   ]
+  },
+  {
+   "id": "EXC-2",
+   "s": "EXC",
+   "t": "Ordem dos catch",
+   "c": [
+    {
+     "id": "t-EXC-2-1",
+     "p": "Em que ordem vêm os catch?",
+     "r": "Do **mais específico** para o **mais genérico**. `catch (Exception e)` por último."
+    },
+    {
+     "id": "t-EXC-2-2",
+     "p": "`catch (Exception e)` antes de `catch (ArithmeticException e)`",
+     "r": "**Erro de compilação**: o segundo catch nunca seria alcançado."
+    }
+   ]
+  },
+  {
+   "id": "EXC-3",
+   "s": "EXC",
+   "t": "throw x throws",
+   "c": [
+    {
+     "id": "t-EXC-3-1",
+     "p": "throw (sem s)",
+     "r": "**Lança** uma exceção na hora: `throw new IllegalArgumentException(\"msg\");`"
+    },
+    {
+     "id": "t-EXC-3-2",
+     "p": "throws (com s)",
+     "r": "Vai na **assinatura** e declara que o método pode lançar a exceção: `void ler() throws IOException`."
+    },
+    {
+     "id": "t-EXC-3-3",
+     "p": "Exceção checked",
+     "r": "Como **IOException**: obriga a tratar (try/catch) ou declarar (throws), senão não compila."
+    },
+    {
+     "id": "t-EXC-3-4",
+     "p": "Exceção unchecked",
+     "r": "Filhas de **RuntimeException** (ArithmeticException, NullPointerException...). Não obrigam tratamento."
+    }
+   ]
+  },
+  {
+   "id": "EXC-4",
+   "s": "EXC",
+   "t": "Exceções comuns",
+   "c": [
+    {
+     "id": "t-EXC-4-1",
+     "p": "`scanner.nextInt()` recebe \"abc\"",
+     "r": "**InputMismatchException**"
+    },
+    {
+     "id": "t-EXC-4-2",
+     "p": "`meses[12]` num array de 12 posições",
+     "r": "**ArrayIndexOutOfBoundsException** (os índices vão de 0 a 11)."
+    },
+    {
+     "id": "t-EXC-4-3",
+     "p": "`Integer.parseInt(\"abc\")`",
+     "r": "**NumberFormatException**"
+    },
+    {
+     "id": "t-EXC-4-4",
+     "p": "`String s = null; s.length();`",
+     "r": "**NullPointerException**"
+    },
+    {
+     "id": "t-EXC-4-5",
+     "p": "`new FileReader(\"naoexiste.txt\")`",
+     "r": "**FileNotFoundException** (filha de IOException, checked)."
+    }
+   ]
+  },
+  {
+   "id": "KEY-0",
+   "s": "KEY",
+   "t": "Palavras-chave da UP2",
+   "c": [
+    {
+     "id": "t-KEY-0-1",
+     "p": "extends",
+     "r": "Faz a classe **herdar** de outra: `class Pix extends Pagamento`."
+    },
+    {
+     "id": "t-KEY-0-2",
+     "p": "super(...)",
+     "r": "Chama o **construtor da superclasse**. Primeira linha do construtor da subclasse."
+    },
+    {
+     "id": "t-KEY-0-3",
+     "p": "super.metodo()",
+     "r": "Chama a **versão da superclasse** de um método sobrescrito."
+    },
+    {
+     "id": "t-KEY-0-4",
+     "p": "this",
+     "r": "Referência ao **próprio objeto**: `this.nota`."
+    },
+    {
+     "id": "t-KEY-0-5",
+     "p": "abstract (na classe)",
+     "r": "A classe **não pode ser instanciada**."
+    },
+    {
+     "id": "t-KEY-0-6",
+     "p": "abstract (no método)",
+     "r": "Método **sem corpo**; a subclasse concreta é obrigada a implementar."
+    },
+    {
+     "id": "t-KEY-0-7",
+     "p": "@Override",
+     "r": "Marca um método que **sobrescreve** outro da superclasse; o compilador confere a assinatura."
+    },
+    {
+     "id": "t-KEY-0-8",
+     "p": "protected",
+     "r": "Acesso pela **subclasse** e pelo **mesmo pacote**."
+    },
+    {
+     "id": "t-KEY-0-9",
+     "p": "private",
+     "r": "Acesso **só dentro da própria classe**."
+    },
+    {
+     "id": "t-KEY-0-10",
+     "p": "static",
+     "r": "Pertence à **classe**, compartilhado por todos os objetos (ex.: `ultimoId`)."
+    },
+    {
+     "id": "t-KEY-0-11",
+     "p": "final",
+     "r": "**Constante** (variável), método que não pode ser sobrescrito ou classe que não pode ser estendida."
+    },
+    {
+     "id": "t-KEY-0-12",
+     "p": "instanceof",
+     "r": "Testa se um objeto **é de um tipo**: `p instanceof PagamentoPix`."
+    },
+    {
+     "id": "t-KEY-0-13",
+     "p": "try",
+     "r": "Bloco do código que **pode** lançar exceção."
+    },
+    {
+     "id": "t-KEY-0-14",
+     "p": "catch",
+     "r": "Bloco que **captura e trata** a exceção."
+    },
+    {
+     "id": "t-KEY-0-15",
+     "p": "finally",
+     "r": "Bloco que **sempre executa**."
+    },
+    {
+     "id": "t-KEY-0-16",
+     "p": "throw",
+     "r": "**Lança** uma exceção: `throw new ...`"
+    },
+    {
+     "id": "t-KEY-0-17",
+     "p": "throws",
+     "r": "**Declara** na assinatura que o método pode lançar a exceção."
+    },
+    {
+     "id": "t-KEY-0-18",
+     "p": "Exception e",
+     "r": "O **objeto da exceção** capturada; `e.getMessage()` traz a mensagem."
+    }
+   ]
+  }
+ ]
+}

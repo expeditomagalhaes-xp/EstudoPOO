@@ -1,0 +1,212 @@
+{
+ "fonte": "Aulas 05 (Herança e Classe Abstrata), 06 (Polimorfismo) e 07 (Tratamento de Exceção) do Prof. Aldo Moura, UNIT 2026.2. Itens marcados como complemento não estão nos slides, mas são regra do Java e costumam cair.",
+ "materias": [
+  {
+   "s": "HER",
+   "n": "Herança",
+   "q": "Aula 05",
+   "t": [
+    {
+     "t": "Por que existe herança",
+     "r": [
+      "Na aula, as classes **PagamentoEspecie**, **PagamentoCredito**, **PagamentoDebito** e **PagamentoPix** tinham os mesmos atributos `id`, `data` e `valor`. Escrever isso quatro vezes é **duplicidade de código** (retrabalho): se a regra do id mudar, você muda em quatro lugares.",
+      "A herança resolve isso: o que é comum vai para uma classe-mãe, a **superclasse** (`Pagamento`). Cada tipo de pagamento vira uma classe-filha, a **subclasse**, que só escreve o que tem de diferente.",
+      "Em Java, a subclasse usa a palavra **extends**:",
+      "```public class Pagamento { ... }          // superclasse\npublic class PagamentoPix extends Pagamento { ... }   // subclasse",
+      "A subclasse **herda os membros da superclasse, menos os construtores**, e pode acrescentar os seus. `PagamentoPix` ganha `tipoChave` e `chave`, mas continua tendo `getId()` e `getValor()` sem escrever nada.",
+      "**Uma classe só pode estender uma classe** (`extends A, B` não compila). Java não tem herança múltipla de classes."
+     ],
+     "id": "HER-0"
+    },
+    {
+     "t": "\"É um\" x \"tem um\" e hierarquia",
+     "r": [
+      "Herança é um relacionamento **\"é um\"**: Pix *é um* Pagamento, caminhão *é um* transporte. Se a frase \"X é um Y\" não faz sentido, não é herança.",
+      "Associação, agregação e composição (UP1) são **\"tem um\"**: caminhão *tem um* motor, mas motor não é caminhão. Nesse caso o motor vira **atributo**, não superclasse.",
+      "**Hierarquia:** uma subclasse pode virar superclasse de outra. A classe logo acima é a **superclasse direta**; as que estão mais acima são **superclasses indiretas**.",
+      "Toda classe Java herda, direta ou indiretamente, de **Object**. É de lá que vêm `toString()` e `equals()`. Quando você escreve `class Pagamento` sem `extends`, o Java entende `class Pagamento extends Object`."
+     ],
+     "id": "HER-1"
+    },
+    {
+     "t": "Construtores e super(...)",
+     "r": [
+      "Construtores **não são herdados**. Por isso, o construtor da subclasse precisa chamar o construtor da superclasse com **super(...)**, para que os atributos herdados (id, data, valor) sejam inicializados.",
+      "```public class Pagamento {\n    private static int ultimoId = 0;\n    private int id;\n    private double valor;\n\n    public Pagamento(double valor) {\n        this.id = ++ultimoId;\n        this.valor = valor;\n    }\n}\n\npublic class PagamentoPix extends Pagamento {\n    private char tipoChave;\n    private String chave;\n\n    public PagamentoPix(double valor, char tipoChave, String chave) {\n        super(valor);           // 1º: monta a parte Pagamento\n        this.tipoChave = tipoChave;\n        this.chave = chave;\n    }\n}",
+      "**Regra da prova:** `super(...)` é a **primeira linha** do construtor da subclasse.",
+      "Se você não escrever `super(...)`, o Java tenta chamar `super()` **sem parâmetros**. Se a superclasse só tem construtor com parâmetros (como `Pagamento(double valor)`), **dá erro de compilação**. Esse é um dos erros mais cobrados.",
+      "**this** x **super**: `this.chave` é o atributo do próprio objeto; `super(valor)` chama o construtor da mãe; `super.metodo()` chama a versão do método que está na mãe.",
+      "**static ultimoId:** `static` significa que a variável é **da classe**, não de cada objeto. Todos os pagamentos compartilham o mesmo `ultimoId`, e por isso `++ultimoId` gera 1, 2, 3... em sequência."
+     ],
+     "id": "HER-2"
+    },
+    {
+     "t": "private, protected e acesso na subclasse",
+     "r": [
+      "**private** na superclasse: a subclasse **não acessa diretamente**. `PagamentoPix` não pode escrever `this.valor = 10;` se `valor` é private em `Pagamento`. Ela usa o getter: `getValor()`.",
+      "**protected**: a subclasse acessa direto (e as classes do mesmo pacote também). Foi o que o professor usou em `Avaliacao`: `nota`, `acertosMultiplaEscolha` e `notaDiscursiva1/2` são `protected`, porque a subclasse `AvaliacaoNeurodivergente` precisa alterar `this.nota`.",
+      "**public**: qualquer classe acessa. **Sem modificador (default)**: só o mesmo pacote.",
+      "Prática do professor: atributos `private`; atributos que a subclasse precisa alterar, `protected`; métodos usados por outras classes, `public`; métodos auxiliares internos, `private`."
+     ],
+     "id": "HER-3"
+    },
+    {
+     "t": "Referência da superclasse e cast",
+     "r": [
+      "Como Pix *é um* Pagamento, uma variável do tipo da superclasse pode guardar um objeto da subclasse:",
+      "```Pagamento pagto = new PagamentoPix(300.00, 'C', \"81990901001\");",
+      "Pela variável `pagto` você só enxerga o que existe em **Pagamento** (`getId()`, `getValor()`, `getData()`). Chamar `pagto.getChave()` **não compila**, porque o tipo da variável é Pagamento.",
+      "Para usar o que é só do Pix, faça **cast** (conversão) para a subclasse:",
+      "```((PagamentoPix) pagto).getChave()",
+      "Os parênteses importam: primeiro converte `(PagamentoPix) pagto`, depois chama o método.",
+      "Se o objeto **não for** daquele tipo (ex.: um PagamentoDebito convertido para PagamentoPix), compila, mas **dá ClassCastException ao executar**. Para testar antes, use **instanceof**: `if (pagto instanceof PagamentoPix) { ... }` (complemento)."
+     ],
+     "id": "HER-4"
+    }
+   ]
+  },
+  {
+   "s": "ABS",
+   "n": "Classe abstrata",
+   "q": "Aula 05",
+   "t": [
+    {
+     "t": "Classe abstrata",
+     "r": [
+      "No exemplo da aula, `PessoaFisica` e `PessoaJuridica` tinham em comum id, cep, endereço, telefones e e-mail. Isso foi para a superclasse `Pessoa`.",
+      "Mas **não existe uma pessoa que não seja física nem jurídica**. Então `Pessoa` não deve poder ser criada sozinha. Para isso ela é declarada **abstract**:",
+      "```public abstract class Pessoa {\n    private int id;\n    private String endereco;\n    private List<String> telefones;\n\n    public Pessoa(int id, String endereco) {\n        this.id = id;\n        this.endereco = endereco;\n        this.telefones = new ArrayList<String>();\n    }\n}\n\npublic class PessoaFisica extends Pessoa {\n    private String cpf;\n\n    public PessoaFisica(int id, String endereco, String cpf) {\n        super(id, endereco);\n        this.cpf = cpf;\n    }\n}",
+      "**`new Pessoa(...)` dá erro de compilação.** O certo é `new PessoaFisica(...)`. Mas a variável pode ser do tipo abstrato: `Pessoa p = new PessoaFisica(...);` compila normalmente.",
+      "Classe abstrata **pode ter** atributos, construtor e métodos com código. O construtor dela existe para ser chamado pelas subclasses via `super(...)`."
+     ],
+     "id": "ABS-0"
+    },
+    {
+     "t": "Método abstrato (complemento)",
+     "r": [
+      "Um **método abstrato** é declarado sem corpo, terminando em ponto e vírgula. Ele obriga cada subclasse a escrever a sua versão:",
+      "```public abstract class Pagamento {\n    public abstract double calcularTaxa();   // sem { }\n}\n\npublic class PagamentoCredito extends Pagamento {\n    @Override\n    public double calcularTaxa() {\n        return getValor() * 0.03;\n    }\n}",
+      "Regras que viram questão de \"ache o erro\": 1) **método abstrato não tem corpo** (`abstract void x() { }` não compila); 2) se a classe tem um método abstrato, **a classe precisa ser abstract**; 3) uma subclasse **concreta** (não abstrata) **é obrigada a implementar** todos os métodos abstratos herdados."
+     ],
+     "id": "ABS-1"
+    }
+   ]
+  },
+  {
+   "s": "POL",
+   "n": "Polimorfismo",
+   "q": "Aula 06",
+   "t": [
+    {
+     "t": "O que é polimorfismo",
+     "r": [
+      "Polimorfismo (\"muitas formas\") é **o mesmo nome de método com comportamentos diferentes**. O professor apresentou dois tipos:",
+      "**Sobrecarga (overload):** na **mesma classe**, o mesmo nome com **listas de parâmetros diferentes**.",
+      "**Sobreposição (override):** na **subclasse**, o método é **reescrito com a mesma assinatura** da superclasse, para ter outro comportamento.",
+      "Assinatura = **nome do método + lista de parâmetros** (quantidade, tipos e ordem). O tipo de retorno **não faz parte** da assinatura."
+     ],
+     "id": "POL-0"
+    },
+    {
+     "t": "Sobrecarga (overload)",
+     "r": [
+      "Estudo de caso do **Dosador de medicação**: medicamento sólido é dado por quantidade (comprimidos); líquido é dado por peso do paciente vezes dosagem por quilo. As duas ações se chamam `administrarMedicacao`:",
+      "```public double administrarMedicacao(int qtde) {\n    if (quantidadeDisponivel >= qtde) {\n        quantidadeDisponivel -= qtde;\n        return qtde;\n    }\n    return 0;\n}\n\npublic double administrarMedicacao(double peso, double dosagemPorQuilo) {\n    double dose = peso * dosagemPorQuilo;\n    if (quantidadeDisponivel >= dose) {\n        quantidadeDisponivel -= dose;\n        return dose;\n    }\n    return 0;\n}",
+      "Quem decide qual versão roda é o **Java, pelos argumentos**: `dosador.administrarMedicacao(2)` chama a de 1 parâmetro; `dosador.administrarMedicacao(75, 0.03)` chama a de 2.",
+      "Para ser sobrecarga válida, as listas de parâmetros precisam mudar em **quantidade, tipo ou ordem dos tipos**. **Mudar só o nome dos parâmetros ou só o tipo de retorno não é sobrecarga: dá erro de compilação** (método duplicado).",
+      "**Construtores também podem ser sobrecarregados**, como o `Produto` da aula 03, que tinha um construtor com estoque e outro sem."
+     ],
+     "id": "POL-1"
+    },
+    {
+     "t": "Sobreposição (override)",
+     "r": [
+      "Estudo de caso da **Avaliação de concurso**: o candidato neurodivergente tem acréscimo de 10% na nota, mais 10% por nível de TEA, limitado a 1000. A regra base fica em `Avaliacao`; a subclasse reescreve só o cálculo:",
+      "```public class AvaliacaoNeurodivergente extends Avaliacao {\n    private int nivel;\n\n    public AvaliacaoNeurodivergente(int nrInscricao, int nivel) {\n        super(nrInscricao);\n        this.nivel = nivel;\n    }\n\n    @Override\n    public double contabilizarNotas(int acertosME, double disc1, double disc2) {\n        super.contabilizarNotas(acertosME, disc1, disc2);\n        final double INDICE = 1 + 0.1 + 0.1 * nivel;\n        this.nota *= INDICE;\n        this.nota = this.nota > 1000 ? 1000 : this.nota;\n        definirSituacao();\n        return this.nota;\n    }\n}",
+      "**@Override** é uma anotação que avisa ao compilador: \"este método sobrescreve um da superclasse\". Se a assinatura estiver errada (ex.: um parâmetro a mais), o compilador **acusa erro**. Sem a anotação, o código viraria uma sobrecarga sem você perceber.",
+      "**super.contabilizarNotas(...)** reaproveita o cálculo da superclasse e depois aplica o acréscimo. Sem o `super.`, o método chamaria ele mesmo para sempre (recursão infinita, StackOverflowError).",
+      "Regras da sobreposição: **mesmo nome, mesmos parâmetros**, retorno igual (ou compatível) e **não pode diminuir a visibilidade** (se na mãe é `public`, na filha não pode ser `protected` nem `private`). Métodos **private**, **static** e **final** não são sobrescritos (complemento).",
+      "**final** numa variável (como `INDICE`) quer dizer constante: não pode receber outro valor. Na aula, `NR_QUESTOES_ME` e `PONTOS_POR_ME` são `private static final`: constantes da classe."
+     ],
+     "id": "POL-2"
+    },
+    {
+     "t": "Qual versão roda?",
+     "r": [
+      "Na **sobrecarga**, o Java escolhe pelos **argumentos** na hora de compilar.",
+      "Na **sobreposição**, vale o **tipo do objeto** (o que veio do `new`), não o tipo da variável:",
+      "```Avaliacao av = new AvaliacaoNeurodivergente(321, 1);\nav.contabilizarNotas(22, 30, 50);   // roda a versão da SUBCLASSE",
+      "Isso é o polimorfismo de verdade: uma lista `ArrayList<Pagamento>` pode ter Pix, Débito e Crédito, e cada um responde do seu jeito ao mesmo método.",
+      "Resumo para não confundir: **variável decide o que pode ser chamado (compila ou não); objeto decide qual código roda.**"
+     ],
+     "id": "POL-3"
+    }
+   ]
+  },
+  {
+   "s": "EXC",
+   "n": "Exceções",
+   "q": "Aula 07",
+   "t": [
+    {
+     "t": "O que é uma exceção",
+     "r": [
+      "Exceção é um **evento anormal durante a execução** do programa. Se não for tratada, o programa **para de repente** e mostra a pilha de erro, o que é ruim para o usuário e pode perder dados.",
+      "Situações típicas: **divisão de inteiro por zero**, **índice inválido em array**, **texto onde se esperava número**, **arquivo que não existe**, **falha de conexão com banco de dados**.",
+      "Por que tratar: **evitar interrupções**, **controlar o fluxo** (o programa continua ou encerra de forma elegante) e **facilitar a depuração**.",
+      "Atenção: `10 / 0` com **int** gera ArithmeticException, mas `10.0 / 0` com **double** não gera exceção: o resultado é `Infinity` (complemento, pegadinha comum)."
+     ],
+     "id": "EXC-0"
+    },
+    {
+     "t": "try, catch e finally",
+     "r": [
+      "```Scanner input = new Scanner(System.in);\ntry {\n    int numero = input.nextInt();\n    int resultado = 10 / numero;\n    System.out.println(\"Resultado: \" + resultado);\n}\ncatch (ArithmeticException e) {\n    System.out.println(\"Erro: \" + e.getMessage());\n}\ncatch (InputMismatchException e) {\n    System.out.println(\"Digite um número inteiro\");\n}\nfinally {\n    input.close();\n}",
+      "**try**: bloco com o código que pode dar erro. Assim que uma linha lança exceção, **as linhas seguintes do try não rodam**: o fluxo pula para o catch.",
+      "**catch (Tipo e)**: captura aquele tipo de exceção. `e` é o objeto da exceção: **e.getMessage()** traz a mensagem e **e.printStackTrace()** mostra a pilha (para depurar).",
+      "**finally**: **sempre executa**, com ou sem exceção, até se o try tiver `return`. É o lugar de fechar Scanner, arquivo e conexão.",
+      "Um `try` precisa de **pelo menos um catch ou um finally**. `try { }` sozinho não compila.",
+      "Depois do try/catch/finally, o programa **continua normalmente** na linha seguinte."
+     ],
+     "id": "EXC-1"
+    },
+    {
+     "t": "Ordem dos catch",
+     "r": [
+      "Exceções também formam uma **hierarquia de herança**: `ArithmeticException` *é uma* `RuntimeException`, que *é uma* `Exception`.",
+      "Por isso, o `catch (Exception e)` pega **qualquer** exceção. Ele vem **por último**, como \"pega o resto\".",
+      "Se o `catch (Exception e)` vier **antes** de um mais específico, o específico nunca seria alcançado: **dá erro de compilação**.",
+      "```try { ... }\ncatch (ArithmeticException e) { ... }     // específico primeiro\ncatch (InputMismatchException e) { ... }\ncatch (Exception e) { ... }               // genérico por último"
+     ],
+     "id": "EXC-2"
+    },
+    {
+     "t": "throw x throws",
+     "r": [
+      "**throw** (sem s) **lança** uma exceção na hora, dentro do método. Vem com `new`:",
+      "```public void sacar(double valor) {\n    if (valor > saldo) {\n        throw new IllegalArgumentException(\"Saldo insuficiente\");\n    }\n    saldo -= valor;\n}",
+      "**throws** (com s) vai na **assinatura** do método e avisa: \"este método pode lançar essa exceção; quem me chamar que trate\".",
+      "```public void lerArquivo() throws IOException {\n    FileReader reader = new FileReader(\"arquivo.txt\");\n    reader.read();\n}",
+      "Atenção: o slide da aula escreveu `throws` nos dois itens. O certo é **throw = lança**; **throws = declara**.",
+      "**Exceções verificadas (checked)**, como `IOException`, **obrigam** você a tratar com try/catch ou declarar com throws, senão não compila. **Não verificadas (unchecked)**, filhas de RuntimeException (ArithmeticException, NullPointerException...), não obrigam (complemento)."
+     ],
+     "id": "EXC-3"
+    },
+    {
+     "t": "Exceções que você precisa reconhecer",
+     "r": [
+      "**ArithmeticException**: divisão de inteiro por zero (`10 / 0`).",
+      "**InputMismatchException**: `scanner.nextInt()` recebeu texto (precisa de `import java.util.InputMismatchException`).",
+      "**ArrayIndexOutOfBoundsException**: índice fora do array. Ex.: no `AppExercicio`, `meses[mes-1]` com mês 13 ou 0.",
+      "**NumberFormatException**: `Integer.parseInt(\"abc\")`.",
+      "**NullPointerException**: chamar método em variável que vale `null`.",
+      "**ClassCastException**: cast para uma subclasse que o objeto não é.",
+      "**IOException** / **FileNotFoundException**: erro de leitura ou arquivo inexistente (checked).",
+      "**Exception**: a mãe de quase todas; usada no catch genérico."
+     ],
+     "id": "EXC-4"
+    }
+   ]
+  }
+ ]
+}
