@@ -4,6 +4,10 @@ var ORDER=['REL','HER','ABS','INT','POL','EXC','KEY'];
 var TN={vf:'V ou F sobre o código',uml:'Diagrama UML',me:'Múltipla escolha',lac:'Complete o código',lin:'Ache o erro',ce:'Certo ou errado'};
 var TORDER=['vf','uml','me','lac','lin','ce'];
 var CASO={},DIAG={};
+var NVN={1:'Fácil',2:'Médio',3:'Difícil'};
+function nvTag(n){return '<span class="nv nv'+n+'">'+NVN[n]+'</span>'}
+/* nível do caso = média das 5 afirmações */
+function casoNv(g){var v=Q.filter(function(q){return q.g===g}).map(function(q){return q.nv});var m=v.reduce(function(x,y){return x+y},0)/(v.length||1);return m<=1.45?1:m>=1.95?3:2}
 var CONT=null;
 function setData(DATA){Q=DATA.q;BYID={};CASO={};DIAG=DATA.diag||{};(DATA.casos||[]).forEach(function(c){CASO[c.id]=c});Q.forEach(function(q){q.t=q.t||'me';BYID[q.id]=q})}
 
@@ -72,20 +76,24 @@ function umlSvg(d){
 }
 
 /* ---------- treino ---------- */
-var cfg={subj:{},tipo:{},mode:'new'};
+var cfg={subj:{},tipo:{},nv:{},mode:'new'};
 function renderChips(){
   var c={},tc={};Q.forEach(function(q){c[q.s]=(c[q.s]||0)+1;tc[q.t]=(tc[q.t]||0)+1});
   $('subjchips').innerHTML=ORDER.filter(function(s){return c[s]}).map(function(s){
     return '<button class="chip" data-s="'+s+'" aria-pressed="'+(!!cfg.subj[s])+'">'+esc(SN[s])+' <small>'+c[s]+'</small></button>'}).join('');
   $('typechips').innerHTML=TORDER.filter(function(t){return tc[t]}).map(function(t){
     return '<button class="chip" data-t="'+t+'" aria-pressed="'+(!!cfg.tipo[t])+'">'+esc(TN[t])+' <small>'+tc[t]+'</small></button>'}).join('');
+  var nc={};Q.forEach(function(q){nc[q.nv]=(nc[q.nv]||0)+1});
+  $('nvchips').innerHTML=[1,2,3].map(function(n){return '<button class="chip" data-n="'+n+'" aria-pressed="'+(!!cfg.nv[n])+'">'+nvTag(n)+' <small>'+(nc[n]||0)+'</small></button>'}).join('');
+  $('nvchips').querySelectorAll('.chip').forEach(function(b){b.onclick=function(){var n=b.dataset.n;if(cfg.nv[n])delete cfg.nv[n];else cfg.nv[n]=1;renderChips()}});
   $('subjchips').querySelectorAll('.chip').forEach(function(b){b.onclick=function(){var s=b.dataset.s;if(cfg.subj[s])delete cfg.subj[s];else cfg.subj[s]=1;renderChips()}});
   $('typechips').querySelectorAll('.chip').forEach(function(b){b.onclick=function(){var t=b.dataset.t;if(cfg.tipo[t])delete cfg.tipo[t];else cfg.tipo[t]=1;renderChips()}});
   renderPoolInfo();
 }
 function buildPool(){
-  var anyS=Object.keys(cfg.subj).length===0,anyT=Object.keys(cfg.tipo).length===0;
+  var anyS=Object.keys(cfg.subj).length===0,anyT=Object.keys(cfg.tipo).length===0,anyN=Object.keys(cfg.nv).length===0;
   return Q.filter(function(q){
+    if(!anyN&&!cfg.nv[q.nv])return false;
     if(!anyS&&!cfg.subj[q.s])return false;
     if(!anyT&&!cfg.tipo[q.t])return false;
     if(cfg.mode==='new')return !S.ans[q.id];
@@ -108,20 +116,20 @@ function groupOrder(ids){var out=[],seen={};ids.forEach(function(id){var q=BYID[
   ids.filter(function(x){return BYID[x].g===q.g}).sort(function(x,y){return x.localeCompare(y,undefined,{numeric:true})}).forEach(function(x){out.push(x)})});return out}
 function startSession(list,sim){
   sess={list:groupOrder(list),i:0,ok:0,done:0,answered:false,res:[],sim:!!sim,pts:0,max:0};
-  $('setup').hidden=true;$('summary').hidden=true;$('quiz').hidden=false;showQ();window.scrollTo(0,0);
+  $('setup').hidden=true;$('simcard').hidden=true;$('summary').hidden=true;$('quiz').hidden=false;showQ();window.scrollTo(0,0);
 }
 function histTag(id){var r=S.ans[id];if(!r)return '<span class="tag">Nova</span>';
   return '<span class="tag" style="color:'+(r[2]?'var(--ok)':'var(--bad)')+'">'+(r[2]?'✓ Acertou da última vez':'✗ Errou da última vez')+' · '+r[0]+'✓ '+r[1]+'✗</span>'}
 function showQ(){
   var q=BYID[sess.list[sess.i]];sess.answered=false;
-  $('sessScore').textContent=sess.sim?sess.pts:(sess.ok+'/'+sess.done);
+  $('sessScore').textContent=sess.hide?'–':sess.sim?sess.pts:(sess.ok+'/'+sess.done);
   $('sessLeft').textContent=(sess.sim?'pontos · ':'')+'questão '+(sess.i+1)+' de '+sess.list.length;
-  var head='<div class="qmeta"><span class="tag">'+esc(SN[q.s])+'</span>'+histTag(q.id)+'</div><span class="tipo">'+esc(TN[q.t])+'</span>';
+  var head='<div class="qmeta"><span class="tag">'+esc(SN[q.s])+'</span>'+histTag(q.id)+'</div><div class="row" style="gap:8px"><span class="tipo">'+esc(TN[q.t])+'</span>'+nvTag(q.nv)+'</div>';
   var body='<p class="qtext">'+fmtR(q.q)+'</p>';
   var prev=sess.i>0?BYID[sess.list[sess.i-1]]:null,sameCase=q.t==='vf'&&prev&&prev.g===q.g;
   if(q.t==='vf'){
     var cs=CASO[q.g],nIn=sess.list.filter(function(x){return BYID[x].g===q.g}),pos=nIn.indexOf(q.id)+1;
-    body='<div class="casohd">Analise o código a seguir e selecione Verdadeiro ou Falso <span class="muted">· afirmação '+pos+' de '+nIn.length+'</span></div>'+(cs.n?'<p class="muted" style="font-size:.88rem;margin:0">'+esc(cs.n)+'</p>':'')+
+    body='<div class="casohd">Analise o código a seguir e selecione Verdadeiro ou Falso <span class="muted">· afirmação '+pos+' de '+nIn.length+' · caso '+NVN[casoNv(q.g)].toLowerCase()+'</span></div>'+(cs.n?'<p class="muted" style="font-size:.88rem;margin:0">'+esc(cs.n)+'</p>':'')+
       '<details class="casocode" open><summary>Código do caso</summary>'+codeBlock(cs.k)+'</details>'+
       '<p class="qtext" id="stmt">'+fmtR(q.q)+'</p>';
     sess.map=[0,1];
@@ -167,6 +175,7 @@ function record(q,ok){
 function answerOpt(q,i){
   if(sess.answered)return;sess.answered=true;
   var ok=i===q.a;record(q,ok);
+  if(sess.hide){$('qcard').querySelectorAll('.opt').forEach(function(b){b.disabled=true;if(+b.dataset.i===i)b.classList.add('chosen')});quietNext();return}
   $('qcard').querySelectorAll('.opt').forEach(function(b){var k=+b.dataset.i;b.disabled=true;if(k===q.a)b.classList.add('right');else if(k===i)b.classList.add('wrong')});
   var gab=q.t==='ce'?(q.a===0?'Certo':'Errado'):q.t==='vf'?(q.a===0?'Verdadeiro':'Falso'):q.t==='uml'?'Opção '+'ABC'[q.a]:'ABCD'[sess.map.indexOf(q.a)];
   feedback(q,ok,ok?'Acertou.':'Errou. Resposta: '+gab+'.');
@@ -194,6 +203,11 @@ function checkGap(q){
   record(q,allOk);
   feedback(q,allOk,allOk?'Acertou.':'Errou. Resposta: '+fix.join(' · ')+'.');
 }
+function quietNext(){var last=sess.i===sess.list.length-1,q=BYID[sess.list[sess.i]];
+  $('fb').innerHTML='<p class="muted" style="font-size:.9rem">Resposta registrada. A correção aparece no final, como na prova.</p><div class="row" style="margin-top:6px"><button class="btn grow" id="next">'+(last?'Ver resultado':'Próxima')+'</button></div>';
+  $('sessScore').textContent='–';
+  $('next').onclick=function(){if(last)endSession();else{sess.i++;var nq=BYID[sess.list[sess.i]];if(!(nq.t==='vf'&&nq.g===q.g))window.scrollTo(0,0);showQ()}};
+  try{$('next').focus({preventScroll:true})}catch(e){}}
 function feedback(q,ok,title){
   var last=sess.i===sess.list.length-1;
   $('fb').innerHTML='<div class="fb'+(ok?'':' bad')+'"><strong>'+esc(title)+'</strong>'+(q.c?'<span>'+fmtR(q.c)+'</span>':'')+'</div>'+
@@ -217,31 +231,45 @@ function endSession(){
    '<button class="btn ghost small" id="back" style="width:fit-content">Mudar filtros</button>';
   $('again').onclick=function(){var p=shuffle(buildPool().map(function(q){return q.id})).slice(0,10);if(p.length)startSession(p);else{s.hidden=true;$('setup').hidden=false;renderPoolInfo()}};
   if(wrong.length)$('redoNow').onclick=function(){startSession(shuffle(wrong.map(function(r){return r.id})))};
-  $('back').onclick=function(){s.hidden=true;$('setup').hidden=false;renderChips()};
+  $('back').onclick=function(){s.hidden=true;$('setup').hidden=false;$('simcard').hidden=false;renderChips();renderSimCfg()};
   sess=null;renderAllSide();
 }
 function endSim(s,wrong){
   var p=sess.max?Math.round(sess.pts/sess.max*100):0,complete=sess.done===sess.list.length;
-  s.innerHTML='<div class="label">Simulado no estilo da prova</div><div class="row"><span class="big">'+sess.pts+'/'+sess.max+'</span><span class="muted">pontos'+(complete?'':' (simulado encerrado antes do fim)')+' · '+(p>=60?'acima de 60%':'abaixo de 60%')+'</span></div>'+
+  s.innerHTML='<div class="label">Simulado no estilo da prova · '+(sess.nv?'nível '+NVN[sess.nv].toLowerCase():'níveis misturados')+'</div><div class="row"><span class="big">'+sess.pts+'/'+sess.max+'</span><span class="muted">pontos'+(complete?'':' (simulado encerrado antes do fim)')+' · '+(p>=60?'acima de 60%':'abaixo de 60%')+'</span></div>'+
    '<div class="bar'+(p>=60?' ok':'')+'"><i style="width:'+p+'%"></i></div>'+
-   '<div class="simres">'+sess.res.map(function(r,i){var q=BYID[r.id];return '<div class="err"><span style="font-weight:600;color:'+(r.ok?'var(--ok)':'var(--bad)')+'">'+(r.ok?'✓ Correto':'✗ Incorreto')+' <span class="muted" style="font-weight:400">'+(r.ok?qPts(q):0)+'/'+qPts(q)+' pontos · '+(i+1)+'</span></span><span style="font-size:.95rem">'+fmtR(q.q)+'</span>'+(r.ok?'':'<span style="color:var(--ok);font-weight:600">Resposta: '+esc(gabText(q))+'</span>'+(q.c?'<span class="muted" style="font-size:.9rem">'+fmtR(q.c)+'</span>':''))+'</div>'}).join('')+'</div>'+
+   '<div class="simres">'+sess.res.map(function(r,i){var q=BYID[r.id];return '<div class="err"><span style="font-weight:600;color:'+(r.ok?'var(--ok)':'var(--bad)')+'">'+(r.ok?'✓ Correto':'✗ Incorreto')+' <span class="muted" style="font-weight:400">'+(r.ok?qPts(q):0)+'/'+qPts(q)+' pontos · '+(i+1)+'</span> '+nvTag(q.nv)+'</span><span style="font-size:.95rem">'+fmtR(q.q)+'</span>'+(r.ok?'':'<span style="color:var(--ok);font-weight:600">Resposta: '+esc(gabText(q))+'</span>'+(q.c?'<span class="muted" style="font-size:.9rem">'+fmtR(q.c)+'</span>':''))+'</div>'}).join('')+'</div>'+
    '<div class="row"><button class="btn grow" id="simAgain">Novo simulado</button>'+(wrong.length?'<button class="btn ghost grow" id="redoNow">Refazer as '+wrong.length+' erradas</button>':'')+'</div>'+
    '<button class="btn ghost small" id="back" style="width:fit-content">Voltar ao treino</button>';
   $('simAgain').onclick=function(){startSim()};
   if(wrong.length)$('redoNow').onclick=function(){startSession(wrong.map(function(r){return r.id}))};
-  $('back').onclick=function(){s.hidden=true;$('setup').hidden=false;renderChips()};
+  $('back').onclick=function(){s.hidden=true;$('setup').hidden=false;$('simcard').hidden=false;renderChips();renderSimCfg()};
   sess=null;renderAllSide();window.scrollTo(0,0);
 }
 /* simulado: 4 casos (20 V/F x 4 pts) + 2 diagramas (10 pts) = 100 */
+var simCfg={nv:0,hide:false};
 function startSim(){
-  var gs=shuffle(Object.keys(CASO)).slice(0,4),ids=[];
-  gs.forEach(function(g){Q.filter(function(q){return q.g===g}).forEach(function(q){ids.push(q.id)})});
-  shuffle(Q.filter(function(q){return q.t==='uml'})).slice(0,2).forEach(function(q){ids.push(q.id)});
-  startSession(ids,true);
+  var L=simCfg.nv,ids=[];
+  var cs=Object.keys(CASO).filter(function(g){return !L||casoNv(g)===L});
+  if(cs.length<4)cs=cs.concat(shuffle(Object.keys(CASO).filter(function(g){return cs.indexOf(g)<0})).slice(0,4-cs.length));
+  shuffle(cs).slice(0,4).forEach(function(g){Q.filter(function(q){return q.g===g}).forEach(function(q){ids.push(q.id)})});
+  var us=Q.filter(function(q){return q.t==='uml'&&(!L||q.nv===L)});
+  if(us.length<2)us=us.concat(shuffle(Q.filter(function(q){return q.t==='uml'&&us.indexOf(q)<0})).slice(0,2-us.length));
+  shuffle(us).slice(0,2).forEach(function(q){ids.push(q.id)});
+  startSession(ids,true);sess.hide=simCfg.hide;sess.nv=L;showQ();
 }
-$('startSim').onclick=function(){go('treino');startSim()};
+function renderSimCfg(){
+  $('simnv').querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',+b.dataset.n===simCfg.nv)});
+  $('simhide').setAttribute('aria-pressed',simCfg.hide);
+  var c={1:0,2:0,3:0};Object.keys(CASO).forEach(function(g){c[casoNv(g)]++});
+  $('siminfo').textContent=simCfg.nv?('Casos de nível '+NVN[simCfg.nv].toLowerCase()+': '+c[simCfg.nv]+' disponíveis. São sorteados 4.'):('Mistura casos fáceis ('+c[1]+'), médios ('+c[2]+') e difíceis ('+c[3]+'). São sorteados 4.');
+}
+$('simnv').querySelectorAll('button').forEach(function(b){b.onclick=function(){simCfg.nv=+b.dataset.n;renderSimCfg()}});
+$('simhide').onclick=function(){simCfg.hide=!simCfg.hide;renderSimCfg()};
+$('simGo').onclick=function(){startSim()};
+$('startSim').onclick=function(){go('treino');sess=null;$('quiz').hidden=true;$('summary').hidden=true;$('setup').hidden=false;$('simcard').hidden=false;renderSimCfg();setTimeout(function(){try{$('simcard').scrollIntoView({block:'start'})}catch(e){}},50)};
 $('start').onclick=function(){var p=shuffle(buildPool().map(function(q){return q.id})).slice(0,10);if(p.length)startSession(p)};
-$('stop').onclick=function(){if(sess&&sess.done)endSession();else{sess=null;$('quiz').hidden=true;$('setup').hidden=false;renderPoolInfo()}};
+$('stop').onclick=function(){if(sess&&sess.done)endSession();else{sess=null;$('quiz').hidden=true;$('setup').hidden=false;$('simcard').hidden=false;renderPoolInfo()}};
 
 /* ---------- resumos ---------- */
 var openChk={},openRes={};
@@ -275,7 +303,7 @@ function wrongIds(){return Object.keys(S.ans).filter(function(id){return BYID[id
 function renderErr(){
   var ids=wrongIds();$('errCount').textContent=ids.length;$('redoErr').disabled=!ids.length;
   $('errlist').innerHTML=ids.length?ids.slice(0,60).map(function(id){var q=BYID[id];
-    return '<div class="err"><span class="row" style="gap:6px"><span class="tag" style="width:fit-content">'+esc(SN[q.s])+'</span><span class="tipo">'+esc(TN[q.t])+'</span></span><span>'+fmtR(q.q)+'</span>'+(q.k?codeBlock(q.t==='lac'?q.k.replace(/\{\{\d+\}\}/g,'____'):q.k):'')+(q.t==='vf'?'<details class="casocode"><summary>Código do caso</summary>'+codeBlock(CASO[q.g].k)+'</details>':'')+(q.t==='uml'?'<details class="casocode"><summary>Diagrama e resposta</summary><div class="uml">'+umlSvg(DIAG[q.d])+'</div>'+codeBlock(q.o[q.a])+'</details>':'')+
+    return '<div class="err"><span class="row" style="gap:6px"><span class="tag" style="width:fit-content">'+esc(SN[q.s])+'</span><span class="tipo">'+esc(TN[q.t])+'</span>'+nvTag(q.nv)+'</span><span>'+fmtR(q.q)+'</span>'+(q.k?codeBlock(q.t==='lac'?q.k.replace(/\{\{\d+\}\}/g,'____'):q.k):'')+(q.t==='vf'?'<details class="casocode"><summary>Código do caso</summary>'+codeBlock(CASO[q.g].k)+'</details>':'')+(q.t==='uml'?'<details class="casocode"><summary>Diagrama e resposta</summary><div class="uml">'+umlSvg(DIAG[q.d])+'</div>'+codeBlock(q.o[q.a])+'</details>':'')+
       '<span style="color:var(--ok);font-weight:600">Resposta: '+esc(gabText(q))+'</span>'+(q.c?'<span class="muted" style="font-size:.9rem">'+fmtR(q.c)+'</span>':'')+'<button class="btn ghost small" style="width:fit-content;margin-top:4px" data-mk="'+esc(id)+'"'+(tgHasUser(id)?' disabled>Cartão criado':'>Criar cartão')+'</button></div>'}).join('')+(ids.length>60?'<p class="muted">Mostrando as 60 mais recentes.</p>':'')
     :'<div class="empty">Nenhum erro pendente.</div>';
   $('errlist').querySelectorAll('[data-mk]').forEach(function(b){b.onclick=function(){tgMakeFromQ(b.dataset.mk);renderErr();renderInicio()}});
@@ -310,6 +338,7 @@ function renderProg(){renderHist();
   $('pAns').textContent=all.length;$('pPct').textContent=(r+w)?Math.round(r/(r+w)*100)+'%':'–';
   $('pstats').innerHTML=statRows(ORDER,SN,function(q){return q.s});
   $('tstats').innerHTML=statRows(TORDER,TN,function(q){return q.t});
+  $('nstats').innerHTML=statRows([1,2,3],NVN,function(q){return q.nv});
   var nf=Object.keys(S.flag).length;
   $('about').textContent=Q.length+' questões: '+Object.keys(CASO).length+' casos de código com 5 afirmações V/F e diagramas UML no estilo do Simulado UP2, mais exercícios das aulas 04 a 07 do Prof. Aldo Moura. Os gabaritos dos códigos foram conferidos compilando e executando em Java. As alternativas são embaralhadas a cada vez.'+(nf?' Você marcou '+nf+' gabarito(s) como suspeito(s): peça no chat para eu conferir.':'');
 }
@@ -544,7 +573,7 @@ $('tabs').querySelectorAll('button').forEach(function(b){b.onclick=function(){go
 window.addEventListener('hashchange',function(){go(location.hash.slice(1))});
 function renderBadges(){var n=wrongIds().length;var d=$('errDot');d.hidden=!n;d.textContent=n>99?'99+':n}
 function renderAllSide(){renderBadges();renderPoolInfo()}
-function renderAll(){renderChips();renderBadges();var v=location.hash.slice(1);go(VIEWS.indexOf(v)>=0?v:'inicio')}
+function renderAll(){renderChips();renderSimCfg();renderBadges();var v=location.hash.slice(1);go(VIEWS.indexOf(v)>=0?v:'inicio')}
 
 /* ---------- início ---------- */
 load();tLoad();tgIndex();

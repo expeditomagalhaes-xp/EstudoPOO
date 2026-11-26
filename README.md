@@ -5,7 +5,8 @@ App de estudo para a 2ª unidade de **Desenvolvimento Orientado a Objetos** (UNI
 - **Resumos:** os tópicos das aulas 05 (Herança e Classe Abstrata), 06 (Polimorfismo) e 07 (Tratamento de Exceção) explicados, com os códigos das aulas.
 - **Tangochō:** cartões por tema, mais uma argola com as palavras-chave do Java (extends, super, abstract, @Override, protected, static, final, try, catch, finally, throw, throws...).
 - **Mapas:** um mapa mental por assunto, com prioridade.
-- **Simulado da prova:** no formato do Simulado UP2 do professor: 4 códigos com 5 afirmações de Verdadeiro ou Falso (4 pontos cada) e 2 diagramas UML com 3 alternativas de código (10 pontos cada), total de 100 pontos.
+- **Níveis:** toda questão tem nível (Fácil, Médio ou Difícil), mostrado no cartão, no caderno de erros e no progresso, e dá para filtrar por nível no treino.
+- **Simulado da prova:** escolha o nível (misto, fácil, médio, difícil) e, se quiser, o **modo prova** (correção só no final). No formato do Simulado UP2 do professor: 4 códigos com 5 afirmações de Verdadeiro ou Falso (4 pontos cada) e 2 diagramas UML com 3 alternativas de código (10 pontos cada), total de 100 pontos.
 - **Questões:** 6 tipos, com correção na hora:
   - **V ou F sobre o código** (caso de código + afirmação, como no simulado);
   - **Diagrama UML** (escolha o código que implementa o diagrama);
@@ -34,7 +35,7 @@ O progresso fica nas chaves `poo-up2-banco-v1` e `poo-up2-tango-v1`.
 
 ## Como adicionar questões
 
-Cada questão é um objeto em `q`. Campos comuns: `id` (único, nunca mude), `s` (assunto: `REL`, `HER`, `ABS`, `INT`, `POL`, `EXC`), `f` (fonte), `q` (enunciado), `c` (comentário). O campo `t` define o tipo:
+Cada questão é um objeto em `q`. Campos comuns: `id` (único, nunca mude), `nv` (nível: 1 fácil, 2 médio, 3 difícil), `s` (assunto: `REL`, `HER`, `ABS`, `INT`, `POL`, `EXC`), `f` (fonte), `q` (enunciado), `c` (comentário). O campo `t` define o tipo:
 
 ```json
 {"id":"her-1","s":"HER","f":"Aula 05","q":"Enunciado","k":"código opcional","o":["A","B","C","D"],"a":0,"c":"..."}

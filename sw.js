@@ -1,4 +1,4 @@
-const C='poo-up2-v2',F=['./','index.html','app.js','questoes.json','conteudos.json','cartoes.json','mapas.json','manifest.webmanifest','icon-192.png','icon-512.png'];
+const C='poo-up2-v3',F=['./','index.html','app.js','questoes.json','conteudos.json','cartoes.json','mapas.json','manifest.webmanifest','icon-192.png','icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(F)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x.indexOf('poo-')===0&&x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
 // Rede primeiro: com internet pega a versão mais nova; sem internet usa a cópia guardada.
