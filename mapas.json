@@ -3,6 +3,31 @@
  "nota": "Prioridade é estimativa a partir do que o professor mais trabalhou em aula e nos exercícios da UP2. Não é oficial.",
  "mapas": [
   {
+   "s": "REL",
+   "r": [
+    {
+     "t": "REL-1",
+     "p": "alta",
+     "n": "Caiu no simulado: Armazenamento/Arquivo (lista, contains, agregação x composição)."
+    },
+    {
+     "t": "REL-2",
+     "p": "alta",
+     "n": "Caiu no simulado: diagrama Cliente ◆ Avaliação."
+    },
+    {
+     "t": "REL-3",
+     "p": "alta",
+     "n": "As questões de 10 pontos são de ler diagrama e escolher o código."
+    },
+    {
+     "t": "REL-0",
+     "p": "media",
+     "n": "Caiu no simulado: \"o relacionamento é do tipo associação simples?\"."
+    }
+   ]
+  },
+  {
    "s": "HER",
    "r": [
     {
@@ -44,6 +69,16 @@
      "t": "ABS-1",
      "p": "media",
      "n": "Complemento: regras do método abstrato aparecem em \"ache o erro\"."
+    }
+   ]
+  },
+  {
+   "s": "INT",
+   "r": [
+    {
+     "t": "INT-0",
+     "p": "alta",
+     "n": "Caiu no simulado: «interface» IAvaliacao e \"Arquivo é uma interface?\"."
     }
    ]
   },

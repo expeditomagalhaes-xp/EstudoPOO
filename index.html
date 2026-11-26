@@ -212,6 +212,15 @@ input.gap.wrong{border-color:var(--bad);background:var(--bad-soft)}
 .lines button.right{background:var(--ok-soft);border-color:var(--ok)}
 .lines button.wrong{background:var(--bad-soft);border-color:var(--bad)}
 .lines button[disabled]{cursor:default}
+.casohd{font-family:var(--f-display,inherit);font-weight:600;color:var(--accent);font-size:1rem}
+details.casocode{border:1.5px solid var(--line);background:var(--surface)}
+details.casocode>summary{cursor:pointer;padding:8px 12px;font-weight:600;font-size:.9rem;list-style:none}
+details.casocode>summary::before{content:'▸ ';color:var(--accent)}
+details.casocode[open]>summary::before{content:'▾ '}
+details.casocode pre.code{border-left:0}
+.uml{background:var(--surface);border:1.5px solid var(--line);padding:8px;overflow-x:auto;color:var(--ink)}
+.uml svg{display:block;width:100%;min-width:480px;height:auto}
+.simres{display:flex;flex-direction:column;gap:0}
 .tipo{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
 </style>
 </head>
@@ -235,7 +244,7 @@ input.gap.wrong{border-color:var(--bad);background:var(--bad-soft)}
       </div>
       <div class="sync">Progresso salvo neste aparelho</div>
     </header>
-    <p class="muted" style="font-size:.95rem;margin-top:10px">Herança, classe abstrata, polimorfismo e tratamento de exceção: o conteúdo postado depois da Prova UP1.</p>
+    <p class="muted" style="font-size:.95rem;margin-top:10px">Relacionamentos e UML, herança, classe abstrata, interface, polimorfismo e tratamento de exceção.</p>
     <div class="menu" style="margin-top:6px">
       <button class="mcard" id="goRes">
         <svg class="mart" viewBox="0 0 64 84" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M8 8h34l14 14v56H8z"/><path d="M42 8v14h14" /><path d="M18 36h28M18 46h28M18 56h18" stroke="var(--accent)" stroke-width="2.5"/></svg>
@@ -251,7 +260,11 @@ input.gap.wrong{border-color:var(--bad);background:var(--bad-soft)}
       </button>
       <button class="mcard" id="goQuest">
         <svg class="mart" viewBox="0 0 64 84" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><rect x="8" y="6" width="48" height="64"/><path d="M18 24l4 4 8-9" stroke="var(--accent)"/><path d="M36 24h12M18 44l4 4 8-9" /><path d="M36 44h12" /></svg>
-        <div><h2>Questões</h2><p>Múltipla escolha com código, complete o código, ache o erro e certo/errado.</p><div class="st" id="stQ"></div></div>
+        <div><h2>Questões</h2><p>Casos de código com V ou F e diagramas UML no estilo do simulado, mais múltipla escolha, complete o código e ache o erro.</p><div class="st" id="stQ"></div></div>
+      </button>
+      <button class="mcard" id="startSim">
+        <svg class="mart" viewBox="0 0 64 84" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><rect x="8" y="6" width="48" height="64"/><path d="M18 22h28M18 32h28M18 42h18" stroke-width="2.5"/><circle cx="44" cy="58" r="9" stroke="var(--accent)"/><path d="M40 58l3 3 6-6" stroke="var(--accent)" stroke-width="2.5"/></svg>
+        <div><h2>Simulado da prova</h2><p>Como o Simulado UP2 do professor: 4 códigos com 5 afirmações de V ou F (4 pontos cada) e 2 diagramas UML (10 pontos cada). Total: 100.</p></div>
       </button>
     </div>
   </section>

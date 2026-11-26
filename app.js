@@ -1,10 +1,11 @@
 var Q=[],BYID={};
-var SN={HER:'Herança',ABS:'Classe abstrata',POL:'Polimorfismo',EXC:'Exceções',KEY:'Palavras-chave'};
-var ORDER=['HER','ABS','POL','EXC','KEY'];
-var TN={me:'Múltipla escolha',lac:'Complete o código',lin:'Ache o erro',ce:'Certo ou errado'};
-var TORDER=['me','lac','lin','ce'];
+var SN={REL:'Relacionamentos e UML',HER:'Herança',ABS:'Classe abstrata',INT:'Interface',POL:'Polimorfismo',EXC:'Exceções',KEY:'Palavras-chave'};
+var ORDER=['REL','HER','ABS','INT','POL','EXC','KEY'];
+var TN={vf:'V ou F sobre o código',uml:'Diagrama UML',me:'Múltipla escolha',lac:'Complete o código',lin:'Ache o erro',ce:'Certo ou errado'};
+var TORDER=['vf','uml','me','lac','lin','ce'];
+var CASO={},DIAG={};
 var CONT=null;
-function setData(DATA){Q=DATA.q;BYID={};Q.forEach(function(q){q.t=q.t||'me';BYID[q.id]=q})}
+function setData(DATA){Q=DATA.q;BYID={};CASO={};DIAG=DATA.diag||{};(DATA.casos||[]).forEach(function(c){CASO[c.id]=c});Q.forEach(function(q){q.t=q.t||'me';BYID[q.id]=q})}
 
 /* ---------- estado ---------- */
 var S={ans:{},chk:{},flag:{}};
@@ -27,9 +28,47 @@ function ansList(q){return Array.isArray(q.a)?q.a:[q.a]}
 /* gabarito em texto, para erros e cartões */
 function gabText(q){
   if(q.t==='ce')return q.a===0?'Certo':'Errado';
+  if(q.t==='vf')return q.a===0?'Verdadeiro':'Falso';
+  if(q.t==='uml')return 'Opção '+'ABC'[q.a];
   if(q.t==='lac')return q.a.map(function(a,i){return (q.a.length>1?'Lacuna '+(i+1)+': ':'')+a[0]}).join(' · ');
   if(q.t==='lin'){var L=linesOf(q);return ansList(q).map(function(i){return 'linha '+(i+1)+': '+L[i].trim()}).join(' / ')}
   return q.o[q.a];
+}
+
+/* ---------- diagrama UML (SVG) ---------- */
+var LH=17;
+function boxH(c){return (c.st?LH:0)+LH+10+Math.max(c.a.length,0)*LH+8+Math.max(c.m.length,0)*LH+8}
+function umlSvg(d){
+  if(!d)return '';
+  var B={};d.cls.forEach(function(c){B[c.id]={x:c.x,y:c.y,w:c.w,h:boxH(c),c:c}});
+  var s='<svg viewBox="0 0 '+d.w+' '+d.h+'" role="img" aria-label="Diagrama de classes" font-family="Barlow,system-ui,sans-serif" font-size="13">';
+  function edge(b,tx,ty){var cx=b.x+b.w/2,cy=b.y+b.h/2,dx=tx-cx,dy=ty-cy;if(!dx&&!dy)return [cx,cy];
+    var sx=dx?(b.w/2)/Math.abs(dx):1e9,sy=dy?(b.h/2)/Math.abs(dy):1e9,k=Math.min(sx,sy);return [cx+dx*k,cy+dy*k]}
+  d.rel.forEach(function(r){
+    var f=B[r.f],t=B[r.t],fc=[f.x+f.w/2,f.y+f.h/2],tc=[t.x+t.w/2,t.y+t.h/2];
+    var p1=edge(f,tc[0],tc[1]),p2=edge(t,fc[0],fc[1]);
+    var dx=p2[0]-p1[0],dy=p2[1]-p1[1],L=Math.sqrt(dx*dx+dy*dy)||1,ux=dx/L,uy=dy/L,nx=-uy,ny=ux;
+    var endTrim=(r.k==='her'||r.k==='real')?14:(r.k==='comp'||r.k==='agreg')?22:0;
+    var e=[p2[0]-ux*endTrim,p2[1]-uy*endTrim];
+    s+='<line x1="'+p1[0]+'" y1="'+p1[1]+'" x2="'+e[0]+'" y2="'+e[1]+'" stroke="currentColor" stroke-width="1.6"'+(r.k==='real'?' stroke-dasharray="6 5"':'')+'/>';
+    if(r.k==='her'||r.k==='real'){var a=[p2[0]-ux*14+nx*8,p2[1]-uy*14+ny*8],b=[p2[0]-ux*14-nx*8,p2[1]-uy*14-ny*8];
+      s+='<polygon points="'+p2.join(',')+' '+a.join(',')+' '+b.join(',')+'" fill="var(--surface)" stroke="currentColor" stroke-width="1.6"/>'}
+    if(r.k==='comp'||r.k==='agreg'){var m=[p2[0]-ux*11+nx*7,p2[1]-uy*11+ny*7],q2=[p2[0]-ux*22,p2[1]-uy*22],n=[p2[0]-ux*11-nx*7,p2[1]-uy*11-ny*7];
+      s+='<polygon points="'+p2.join(',')+' '+m.join(',')+' '+q2.join(',')+' '+n.join(',')+'" fill="'+(r.k==='comp'?'currentColor':'var(--surface)')+'" stroke="currentColor" stroke-width="1.6"/>'}
+    function lab(p,u,txt,back){if(!txt)return;var o=back?-1:1;var x=p[0]+u[0]*o*30+nx*14,y=p[1]+u[1]*o*30+ny*14+4;s+='<text x="'+x+'" y="'+y+'" text-anchor="middle" fill="currentColor">'+esc(txt)+'</text>'}
+    lab(p1,[ux,uy],r.m1,false);lab(p2,[ux,uy],r.m2,true);
+  });
+  d.cls.forEach(function(c){var b=B[c.id],y=c.y;
+    s+='<rect x="'+c.x+'" y="'+c.y+'" width="'+c.w+'" height="'+b.h+'" fill="var(--surface)" stroke="currentColor" stroke-width="1.6"/>';
+    var cx=c.x+c.w/2;y+=LH;
+    if(c.st){s+='<text x="'+cx+'" y="'+y+'" text-anchor="middle" fill="currentColor" font-size="12">«'+esc(c.st)+'»</text>';y+=LH}
+    s+='<text x="'+cx+'" y="'+y+'" text-anchor="middle" fill="currentColor" font-weight="700"'+(c.st==='abstract'?' font-style="italic"':'')+'>'+esc(c.n)+'</text>';
+    y+=8;s+='<line x1="'+c.x+'" y1="'+y+'" x2="'+(c.x+c.w)+'" y2="'+y+'" stroke="currentColor" stroke-width="1.2"/>';
+    c.a.forEach(function(t){y+=LH;s+='<text x="'+(c.x+8)+'" y="'+(y-2)+'" fill="currentColor">'+esc(t)+'</text>'});
+    y+=8;s+='<line x1="'+c.x+'" y1="'+y+'" x2="'+(c.x+c.w)+'" y2="'+y+'" stroke="currentColor" stroke-width="1.2"/>';
+    c.m.forEach(function(t){y+=LH;var ab=/\{abstract\}/.test(t);s+='<text x="'+(c.x+8)+'" y="'+(y-2)+'" fill="currentColor"'+(ab?' font-style="italic"':'')+'>'+esc(t)+'</text>'});
+  });
+  return s+'</svg>';
 }
 
 /* ---------- treino ---------- */
@@ -63,19 +102,35 @@ $('modeseg').querySelectorAll('button').forEach(function(b){b.onclick=function()
   cfg.mode=b.dataset.mode;$('modeseg').querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});renderPoolInfo()}});
 
 var sess=null;
-function startSession(list){
-  sess={list:list,i:0,ok:0,done:0,answered:false,res:[]};
+/* mantém juntas as afirmações do mesmo caso, na ordem do caso */
+function groupOrder(ids){var out=[],seen={};ids.forEach(function(id){var q=BYID[id];
+  if(q.t!=='vf'){out.push(id);return}if(seen[q.g])return;seen[q.g]=1;
+  ids.filter(function(x){return BYID[x].g===q.g}).sort(function(x,y){return x.localeCompare(y,undefined,{numeric:true})}).forEach(function(x){out.push(x)})});return out}
+function startSession(list,sim){
+  sess={list:groupOrder(list),i:0,ok:0,done:0,answered:false,res:[],sim:!!sim,pts:0,max:0};
   $('setup').hidden=true;$('summary').hidden=true;$('quiz').hidden=false;showQ();window.scrollTo(0,0);
 }
 function histTag(id){var r=S.ans[id];if(!r)return '<span class="tag">Nova</span>';
   return '<span class="tag" style="color:'+(r[2]?'var(--ok)':'var(--bad)')+'">'+(r[2]?'✓ Acertou da última vez':'✗ Errou da última vez')+' · '+r[0]+'✓ '+r[1]+'✗</span>'}
 function showQ(){
   var q=BYID[sess.list[sess.i]];sess.answered=false;
-  $('sessScore').textContent=sess.ok+'/'+sess.done;
-  $('sessLeft').textContent='questão '+(sess.i+1)+' de '+sess.list.length;
+  $('sessScore').textContent=sess.sim?sess.pts:(sess.ok+'/'+sess.done);
+  $('sessLeft').textContent=(sess.sim?'pontos · ':'')+'questão '+(sess.i+1)+' de '+sess.list.length;
   var head='<div class="qmeta"><span class="tag">'+esc(SN[q.s])+'</span>'+histTag(q.id)+'</div><span class="tipo">'+esc(TN[q.t])+'</span>';
   var body='<p class="qtext">'+fmtR(q.q)+'</p>';
-  if(q.t==='ce'){
+  var prev=sess.i>0?BYID[sess.list[sess.i-1]]:null,sameCase=q.t==='vf'&&prev&&prev.g===q.g;
+  if(q.t==='vf'){
+    var cs=CASO[q.g],nIn=sess.list.filter(function(x){return BYID[x].g===q.g}),pos=nIn.indexOf(q.id)+1;
+    body='<div class="casohd">Analise o código a seguir e selecione Verdadeiro ou Falso <span class="muted">· afirmação '+pos+' de '+nIn.length+'</span></div>'+(cs.n?'<p class="muted" style="font-size:.88rem;margin:0">'+esc(cs.n)+'</p>':'')+
+      '<details class="casocode" open><summary>Código do caso</summary>'+codeBlock(cs.k)+'</details>'+
+      '<p class="qtext" id="stmt">'+fmtR(q.q)+'</p>';
+    sess.map=[0,1];
+    body+='<div class="ce-opts"><button class="opt" data-i="0"><span>Verdadeiro</span></button><button class="opt" data-i="1"><span>Falso</span></button></div>';
+  }else if(q.t==='uml'){
+    body='<div class="casohd">Analise o diagrama abaixo</div><div class="uml">'+umlSvg(DIAG[q.d])+'</div><p class="qtext">'+fmtR(q.q)+'</p>';
+    sess.map=[0,1,2];
+    body+='<div class="opts">'+sess.map.map(function(oi){return '<button class="opt" data-i="'+oi+'"><b>'+'ABC'[oi]+'</b><span>'+codeBlock(q.o[oi])+'</span></button>'}).join('')+'</div>';
+  }else if(q.t==='ce'){
     sess.map=[0,1];
     body+='<div class="ce-opts"><button class="opt" data-i="0"><span>Certo</span></button><button class="opt" data-i="1"><span>Errado</span></button></div>';
   }else if(q.t==='lac'){
@@ -92,6 +147,7 @@ function showQ(){
   }
   body+='<div id="fb"></div>';
   $('qcard').innerHTML=head+body;
+  if(sameCase){try{$('stmt').scrollIntoView({block:'center'})}catch(e){}}
   if(q.t==='lac'){
     var gaps=$('qcard').querySelectorAll('input.gap');
     gaps.forEach(function(g,i){g.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();if(i<gaps.length-1)gaps[i+1].focus();else checkGap(q)}}});
@@ -102,8 +158,9 @@ function showQ(){
     $('qcard').querySelectorAll('.opt').forEach(function(b){b.onclick=function(){answerOpt(q,+b.dataset.i)}});
   }
 }
+function qPts(q){return q.t==='uml'?10:4}
 function record(q,ok){
-  sess.done++;if(ok)sess.ok++;
+  sess.done++;if(ok)sess.ok++;sess.max+=qPts(q);if(ok)sess.pts+=qPts(q);
   var r=S.ans[q.id]||[0,0,0,0];r=[r[0]+(ok?1:0),r[1]+(ok?0:1),ok?1:0,Date.now()];S.ans[q.id]=r;persist();
   sess.res.push({id:q.id,ok:ok});
 }
@@ -111,7 +168,7 @@ function answerOpt(q,i){
   if(sess.answered)return;sess.answered=true;
   var ok=i===q.a;record(q,ok);
   $('qcard').querySelectorAll('.opt').forEach(function(b){var k=+b.dataset.i;b.disabled=true;if(k===q.a)b.classList.add('right');else if(k===i)b.classList.add('wrong')});
-  var gab=q.t==='ce'?(q.a===0?'Certo':'Errado'):'ABCD'[sess.map.indexOf(q.a)];
+  var gab=q.t==='ce'?(q.a===0?'Certo':'Errado'):q.t==='vf'?(q.a===0?'Verdadeiro':'Falso'):q.t==='uml'?'Opção '+'ABC'[q.a]:'ABCD'[sess.map.indexOf(q.a)];
   feedback(q,ok,ok?'Acertou.':'Errou. Resposta: '+gab+'.');
 }
 function answerLine(q,i){
@@ -143,7 +200,8 @@ function feedback(q,ok,title){
     '<div class="row" style="margin-top:10px"><button class="btn grow" id="next">'+(last?'Ver resultado':'Próxima')+'</button></div>'+
     '<div class="row" style="justify-content:space-between;margin-top:6px"><span class="src">'+esc(q.f)+'</span><button class="linkbtn" id="flag">'+(S.flag[q.id]?'Marcada como suspeita':'Gabarito parece errado?')+'</button></div>';
   $('sessScore').textContent=sess.ok+'/'+sess.done;
-  $('next').onclick=function(){if(last)endSession();else{sess.i++;showQ();window.scrollTo(0,0)}};
+  $('next').onclick=function(){if(last)endSession();else{sess.i++;var nq=BYID[sess.list[sess.i]];var same=nq.t==='vf'&&nq.g===q.g;if(!same)window.scrollTo(0,0);showQ()}};
+  if(sess.sim)$('sessScore').textContent=sess.pts;
   $('flag').onclick=function(){if(S.flag[q.id])delete S.flag[q.id];else S.flag[q.id]=1;persist();this.textContent=S.flag[q.id]?'Marcada como suspeita':'Gabarito parece errado?'};
   try{$('next').focus({preventScroll:true})}catch(e){}
   renderBadges();
@@ -152,6 +210,7 @@ function endSession(){
   $('quiz').hidden=true;var s=$('summary');s.hidden=false;
   var pct=sess.done?Math.round(sess.ok/sess.done*100):0;
   var wrong=sess.res.filter(function(r){return !r.ok});
+  if(sess.sim){endSim(s,wrong);return}
   s.innerHTML='<div class="label">Fim da rodada</div><div class="row"><span class="big">'+sess.ok+'/'+sess.done+'</span><span class="muted">'+pct+'% · '+(pct>=75?'meta de 75% batida':'abaixo da meta de 75%')+'</span></div>'+
    '<div class="bar'+(pct>=75?' ok':'')+'"><i style="width:'+pct+'%"></i></div>'+
    '<div class="row"><button class="btn grow" id="again">Mais 10</button>'+(wrong.length?'<button class="btn ghost grow" id="redoNow">Refazer as '+wrong.length+' erradas</button>':'')+'</div>'+
@@ -161,6 +220,26 @@ function endSession(){
   $('back').onclick=function(){s.hidden=true;$('setup').hidden=false;renderChips()};
   sess=null;renderAllSide();
 }
+function endSim(s,wrong){
+  var p=sess.max?Math.round(sess.pts/sess.max*100):0,complete=sess.done===sess.list.length;
+  s.innerHTML='<div class="label">Simulado no estilo da prova</div><div class="row"><span class="big">'+sess.pts+'/'+sess.max+'</span><span class="muted">pontos'+(complete?'':' (simulado encerrado antes do fim)')+' · '+(p>=60?'acima de 60%':'abaixo de 60%')+'</span></div>'+
+   '<div class="bar'+(p>=60?' ok':'')+'"><i style="width:'+p+'%"></i></div>'+
+   '<div class="simres">'+sess.res.map(function(r,i){var q=BYID[r.id];return '<div class="err"><span style="font-weight:600;color:'+(r.ok?'var(--ok)':'var(--bad)')+'">'+(r.ok?'✓ Correto':'✗ Incorreto')+' <span class="muted" style="font-weight:400">'+(r.ok?qPts(q):0)+'/'+qPts(q)+' pontos · '+(i+1)+'</span></span><span style="font-size:.95rem">'+fmtR(q.q)+'</span>'+(r.ok?'':'<span style="color:var(--ok);font-weight:600">Resposta: '+esc(gabText(q))+'</span>'+(q.c?'<span class="muted" style="font-size:.9rem">'+fmtR(q.c)+'</span>':''))+'</div>'}).join('')+'</div>'+
+   '<div class="row"><button class="btn grow" id="simAgain">Novo simulado</button>'+(wrong.length?'<button class="btn ghost grow" id="redoNow">Refazer as '+wrong.length+' erradas</button>':'')+'</div>'+
+   '<button class="btn ghost small" id="back" style="width:fit-content">Voltar ao treino</button>';
+  $('simAgain').onclick=function(){startSim()};
+  if(wrong.length)$('redoNow').onclick=function(){startSession(wrong.map(function(r){return r.id}))};
+  $('back').onclick=function(){s.hidden=true;$('setup').hidden=false;renderChips()};
+  sess=null;renderAllSide();window.scrollTo(0,0);
+}
+/* simulado: 4 casos (20 V/F x 4 pts) + 2 diagramas (10 pts) = 100 */
+function startSim(){
+  var gs=shuffle(Object.keys(CASO)).slice(0,4),ids=[];
+  gs.forEach(function(g){Q.filter(function(q){return q.g===g}).forEach(function(q){ids.push(q.id)})});
+  shuffle(Q.filter(function(q){return q.t==='uml'})).slice(0,2).forEach(function(q){ids.push(q.id)});
+  startSession(ids,true);
+}
+$('startSim').onclick=function(){go('treino');startSim()};
 $('start').onclick=function(){var p=shuffle(buildPool().map(function(q){return q.id})).slice(0,10);if(p.length)startSession(p)};
 $('stop').onclick=function(){if(sess&&sess.done)endSession();else{sess=null;$('quiz').hidden=true;$('setup').hidden=false;renderPoolInfo()}};
 
@@ -196,7 +275,7 @@ function wrongIds(){return Object.keys(S.ans).filter(function(id){return BYID[id
 function renderErr(){
   var ids=wrongIds();$('errCount').textContent=ids.length;$('redoErr').disabled=!ids.length;
   $('errlist').innerHTML=ids.length?ids.slice(0,60).map(function(id){var q=BYID[id];
-    return '<div class="err"><span class="row" style="gap:6px"><span class="tag" style="width:fit-content">'+esc(SN[q.s])+'</span><span class="tipo">'+esc(TN[q.t])+'</span></span><span>'+fmtR(q.q)+'</span>'+(q.k?codeBlock(q.t==='lac'?q.k.replace(/\{\{\d+\}\}/g,'____'):q.k):'')+
+    return '<div class="err"><span class="row" style="gap:6px"><span class="tag" style="width:fit-content">'+esc(SN[q.s])+'</span><span class="tipo">'+esc(TN[q.t])+'</span></span><span>'+fmtR(q.q)+'</span>'+(q.k?codeBlock(q.t==='lac'?q.k.replace(/\{\{\d+\}\}/g,'____'):q.k):'')+(q.t==='vf'?'<details class="casocode"><summary>Código do caso</summary>'+codeBlock(CASO[q.g].k)+'</details>':'')+(q.t==='uml'?'<details class="casocode"><summary>Diagrama e resposta</summary><div class="uml">'+umlSvg(DIAG[q.d])+'</div>'+codeBlock(q.o[q.a])+'</details>':'')+
       '<span style="color:var(--ok);font-weight:600">Resposta: '+esc(gabText(q))+'</span>'+(q.c?'<span class="muted" style="font-size:.9rem">'+fmtR(q.c)+'</span>':'')+'<button class="btn ghost small" style="width:fit-content;margin-top:4px" data-mk="'+esc(id)+'"'+(tgHasUser(id)?' disabled>Cartão criado':'>Criar cartão')+'</button></div>'}).join('')+(ids.length>60?'<p class="muted">Mostrando as 60 mais recentes.</p>':'')
     :'<div class="empty">Nenhum erro pendente.</div>';
   $('errlist').querySelectorAll('[data-mk]').forEach(function(b){b.onclick=function(){tgMakeFromQ(b.dataset.mk);renderErr();renderInicio()}});
@@ -232,7 +311,7 @@ function renderProg(){renderHist();
   $('pstats').innerHTML=statRows(ORDER,SN,function(q){return q.s});
   $('tstats').innerHTML=statRows(TORDER,TN,function(q){return q.t});
   var nf=Object.keys(S.flag).length;
-  $('about').textContent=Q.length+' questões criadas a partir das aulas 05, 06 e 07 do Prof. Aldo Moura e do exercício do faturamento. Os gabaritos dos códigos foram conferidos compilando e executando em Java. As alternativas são embaralhadas a cada vez.'+(nf?' Você marcou '+nf+' gabarito(s) como suspeito(s): peça no chat para eu conferir.':'');
+  $('about').textContent=Q.length+' questões: '+Object.keys(CASO).length+' casos de código com 5 afirmações V/F e diagramas UML no estilo do Simulado UP2, mais exercícios das aulas 04 a 07 do Prof. Aldo Moura. Os gabaritos dos códigos foram conferidos compilando e executando em Java. As alternativas são embaralhadas a cada vez.'+(nf?' Você marcou '+nf+' gabarito(s) como suspeito(s): peça no chat para eu conferir.':'');
 }
 $('reset').onclick=function(){$('resetConfirm').hidden=false};
 $('resetNo').onclick=function(){$('resetConfirm').hidden=true};
@@ -398,7 +477,7 @@ function tgSummary(){
 function tgHasUser(qid){return T.u.some(function(c){return c.id==='u-'+qid})}
 function tgMakeFromQ(qid){
   var q=BYID[qid];if(!q||tgHasUser(qid))return;
-  var pre=q.t==='ce'?'Certo ou errado? ':(q.t==='lin'?'Onde está o erro? ':(q.t==='lac'?'Complete: ':''));
+  var pre=q.t==='ce'?'Certo ou errado? ':q.t==='vf'?'Verdadeiro ou falso? ':(q.t==='lin'?'Onde está o erro? ':(q.t==='lac'?'Complete: ':''));
   T.u.push({id:'u-'+qid,u:1,s:q.s,p:pre+q.q,r:'Resposta: '+gabText(q)+(q.c?' '+q.c:''),f:q.f||''});
   tPersist();tgIndex();
 }

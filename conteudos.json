@@ -1,6 +1,61 @@
 {
- "fonte": "Aulas 05 (Herança e Classe Abstrata), 06 (Polimorfismo) e 07 (Tratamento de Exceção) do Prof. Aldo Moura, UNIT 2026.2. Itens marcados como complemento não estão nos slides, mas são regra do Java e costumam cair.",
+ "fonte": "Aulas 04 (Relacionamentos), 05 (Herança e Classe Abstrata), 06 (Polimorfismo) e 07 (Tratamento de Exceção) do Prof. Aldo Moura, UNIT 2026.2, e o Simulado UP2. Itens marcados como complemento não estão nos slides, mas são regra do Java e costumam cair.",
  "materias": [
+  {
+   "s": "REL",
+   "n": "Relacionamentos e UML",
+   "q": "Aula 04 · cai na UP2",
+   "t": [
+    {
+     "t": "Associação simples",
+     "r": [
+      "Uma classe **conhece** outra e guarda essa outra como **atributo**. Não existe todo/parte: nenhuma é dona da outra.",
+      "```public class Veiculo {\n    private String placa;\n    private Montadora montadora;   // atributo do tipo da outra classe\n\n    public Veiculo(String placa, Montadora montadora) {\n        this.placa = placa;\n        this.montadora = montadora;   // recebe pronta\n    }\n}",
+      "Um mesmo objeto pode estar associado a vários outros: `new Veiculo(\"ABC\", fiat)` e `new Veiculo(\"XYZ\", fiat)` usam a mesma montadora.",
+      "**UML:** linha simples, sem losango e sem triângulo, com a multiplicidade nas pontas: `Veiculo 0..* ——— 1 Montadora`.",
+      "Usar métodos de outra classe (`montadora.getNome()`) **não é herança**. Herança só existe com `extends`."
+     ],
+     "id": "REL-0"
+    },
+    {
+     "t": "Agregação",
+     "r": [
+      "Relação **todo/parte** em que a **parte existe sozinha**: se o todo deixar de existir, a parte continua. Ex.: Turma e Aluno, Biblioteca e Livro, Imóvel e Registro de Energia.",
+      "**Sinal no código:** a parte **chega pronta como parâmetro**. O `new` dela acontece fora do todo.",
+      "```public class Biblioteca {\n    private List<Livro> livros;\n\n    public Biblioteca() {\n        this.livros = new ArrayList<>();   // instancia a LISTA, não os livros\n    }\n\n    public boolean adicionarLivro(Livro livro) {   // livro vem de fora\n        if (this.livros.contains(livro)) {         // impede duplicidade\n            return false;\n        }\n        this.livros.add(livro);\n        return true;\n    }\n}",
+      "Atenção: o `new ArrayList<>()` cria só a **lista**. Isso não transforma a relação em composição. O que decide é **quem cria os objetos-parte**.",
+      "`contains` antes do `add` **impede duplicidade**. Sem o `new ArrayList<>()`, a lista vale `null` e o `contains` lança **NullPointerException**.",
+      "**UML:** **losango vazio ◇** do lado do todo."
+     ],
+     "id": "REL-1"
+    },
+    {
+     "t": "Composição",
+     "r": [
+      "Relação **todo/parte** em que a **parte não existe sem o todo**. O todo **cria** as partes. Ex.: Pedido e ItemPedido, Banco e Conta.",
+      "**Sinal no código:** o método recebe **os dados** e faz `new` da parte **dentro** do todo.",
+      "```public class Pedido {\n    private List<ItemPedido> itens = new ArrayList<>();\n\n    public void adicionarItem(String produto, int qtde, double preco) {\n        this.itens.add(new ItemPedido(produto, qtde, preco));   // o todo cria a parte\n    }\n}",
+      "Se a parte for uma classe **abstrata** (ex.: Conta), o todo cria a **subclasse concreta**: `contas.add(new ContaPoupanca(...))`. `new Conta(...)` não compila.",
+      "**UML:** **losango preenchido ◆** do lado do todo.",
+      "**Pergunta-teste:** se apagar o todo, a parte ainda faz sentido? Sim → agregação. Não → composição."
+     ],
+     "id": "REL-2"
+    },
+    {
+     "t": "Lendo o diagrama de classes",
+     "r": [
+      "Cada classe é um retângulo com 3 partes: **nome**, **atributos** e **métodos**.",
+      "Visibilidade: **-** private, **+** public, **#** protected.",
+      "**«interface»** acima do nome = `public interface`. **«abstract»** (ou nome em itálico) = `public abstract class`. **{abstract}** num método = método abstrato, sem corpo.",
+      "**Triângulo vazio + linha contínua** = herança (`extends`), apontando para a superclasse.",
+      "**Triângulo vazio + linha tracejada** = realização (`implements`), apontando para a interface.",
+      "**Losango preenchido ◆** = composição; **losango vazio ◇** = agregação; ambos do lado do todo. **Linha simples** = associação.",
+      "Multiplicidade: `1`, `0..1`, `*` ou `0..*` (zero ou mais), `1..*` (um ou mais). Do lado \"muitos\", o atributo vira lista: `List<ItemPedido> itens`."
+     ],
+     "id": "REL-3"
+    }
+   ]
+  },
   {
    "s": "HER",
    "n": "Herança",
@@ -89,6 +144,27 @@
       "Regras que viram questão de \"ache o erro\": 1) **método abstrato não tem corpo** (`abstract void x() { }` não compila); 2) se a classe tem um método abstrato, **a classe precisa ser abstract**; 3) uma subclasse **concreta** (não abstrata) **é obrigada a implementar** todos os métodos abstratos herdados."
      ],
      "id": "ABS-1"
+    }
+   ]
+  },
+  {
+   "s": "INT",
+   "n": "Interface",
+   "q": "Cai na UP2",
+   "t": [
+    {
+     "t": "Interface",
+     "r": [
+      "Interface é um **contrato**: diz **quais métodos** uma classe deve ter, sem dizer como. É declarada com **interface** (não `class`).",
+      "```public interface Tributavel {\n    double calcularImposto();   // sem corpo\n}\n\npublic class Salario implements Tributavel {\n    private double valorBruto;\n\n    @Override\n    public double calcularImposto() {\n        return valorBruto * 0.15;\n    }\n}",
+      "Uma classe **implementa** a interface com **implements** e é **obrigada** a implementar todos os métodos dela, senão não compila.",
+      "**Não pode ser instanciada:** `new Tributavel()` não compila. Mas a variável pode ser do tipo da interface: `Tributavel t = new Salario(3000);`.",
+      "Uma classe pode implementar **várias** interfaces (`implements A, B`), mas só **estender uma** classe. Pode fazer os dois: `public abstract class Pagamento implements IPagamento`.",
+      "Classe **estende** classe (`extends`); classe **implementa** interface (`implements`). `class X extends Interface` ou `class X implements Classe` não compilam.",
+      "**UML:** «interface» acima do nome; a classe liga-se a ela por **linha tracejada com triângulo vazio** (realização).",
+      "Interface x classe abstrata: a abstrata pode ter **atributos**, **construtor** e **métodos com corpo**; a interface (no que se cobra na disciplina) só declara os métodos."
+     ],
+     "id": "INT-0"
     }
    ]
   },

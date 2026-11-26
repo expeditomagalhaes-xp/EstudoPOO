@@ -3,6 +3,119 @@
  "fonte": "Cartões feitos a partir das aulas 05, 06 e 07 do Prof. Aldo Moura (UNIT 2026.2).",
  "temas": [
   {
+   "id": "REL-0",
+   "s": "REL",
+   "t": "Associação simples",
+   "c": [
+    {
+     "id": "t-REL-0-1",
+     "p": "Como se faz uma associação simples?",
+     "r": "A classe guarda a outra como **atributo** e a recebe pronta (construtor ou setter). Ex.: `private Montadora montadora;` em Veiculo."
+    },
+    {
+     "id": "t-REL-0-2",
+     "p": "Associação na UML",
+     "r": "**Linha simples**, sem losango e sem triângulo, com multiplicidade nas pontas."
+    },
+    {
+     "id": "t-REL-0-3",
+     "p": "Usar métodos de outra classe é herança?",
+     "r": "**Não.** Herança só com `extends`. Chamar `montadora.getNome()` é associação."
+    }
+   ]
+  },
+  {
+   "id": "REL-1",
+   "s": "REL",
+   "t": "Agregação",
+   "c": [
+    {
+     "id": "t-REL-1-1",
+     "p": "O que é agregação?",
+     "r": "Todo/parte em que a **parte existe sozinha**. Ex.: Turma e Aluno."
+    },
+    {
+     "id": "t-REL-1-2",
+     "p": "Sinal de agregação no código",
+     "r": "A parte **chega pronta como parâmetro**: `adicionarLivro(Livro livro)`."
+    },
+    {
+     "id": "t-REL-1-3",
+     "p": "Agregação na UML",
+     "r": "**Losango vazio ◇** do lado do todo."
+    },
+    {
+     "id": "t-REL-1-4",
+     "p": "Como impedir duplicidade na lista?",
+     "r": "Testar `contains` antes do `add`: `if (lista.contains(obj)) return false;`"
+    },
+    {
+     "id": "t-REL-1-5",
+     "p": "`new ArrayList<>()` no construtor torna a relação composição?",
+     "r": "**Não.** Ele cria só a lista. O que decide é **quem cria os objetos-parte**."
+    }
+   ]
+  },
+  {
+   "id": "REL-2",
+   "s": "REL",
+   "t": "Composição",
+   "c": [
+    {
+     "id": "t-REL-2-1",
+     "p": "O que é composição?",
+     "r": "Todo/parte em que a **parte não existe sem o todo**; o todo **cria** as partes. Ex.: Pedido e ItemPedido."
+    },
+    {
+     "id": "t-REL-2-2",
+     "p": "Sinal de composição no código",
+     "r": "O método recebe **dados** e faz `new` da parte **dentro** do todo: `itens.add(new ItemPedido(...))`."
+    },
+    {
+     "id": "t-REL-2-3",
+     "p": "Composição na UML",
+     "r": "**Losango preenchido ◆** do lado do todo."
+    },
+    {
+     "id": "t-REL-2-4",
+     "p": "A parte da composição é abstrata. O que o todo instancia?",
+     "r": "Uma **subclasse concreta** (ex.: `new ContaPoupanca(...)`). `new Conta(...)` não compila."
+    }
+   ]
+  },
+  {
+   "id": "REL-3",
+   "s": "REL",
+   "t": "Diagrama de classes",
+   "c": [
+    {
+     "id": "t-REL-3-1",
+     "p": "- + # na UML",
+     "r": "**-** private, **+** public, **#** protected."
+    },
+    {
+     "id": "t-REL-3-2",
+     "p": "Triângulo vazio com linha contínua",
+     "r": "**Herança** (`extends`), apontando para a superclasse."
+    },
+    {
+     "id": "t-REL-3-3",
+     "p": "Triângulo vazio com linha tracejada",
+     "r": "**Realização** (`implements`), apontando para a interface."
+    },
+    {
+     "id": "t-REL-3-4",
+     "p": "«abstract» e {abstract}",
+     "r": "«abstract» no nome = classe abstrata. {abstract} no método = método abstrato, sem corpo."
+    },
+    {
+     "id": "t-REL-3-5",
+     "p": "Multiplicidade 0..* ou 1..* no código",
+     "r": "O atributo vira **lista**: `List<ItemPedido> itens`."
+    }
+   ]
+  },
+  {
    "id": "HER-0",
    "s": "HER",
    "t": "Por que existe herança",
@@ -203,6 +316,43 @@
      "id": "t-ABS-1-3",
      "p": "Subclasse concreta que não implementa o método abstrato herdado",
      "r": "**Erro de compilação.** Ela é obrigada a implementar (ou ser abstrata também)."
+    }
+   ]
+  },
+  {
+   "id": "INT-0",
+   "s": "INT",
+   "t": "Interface",
+   "c": [
+    {
+     "id": "t-INT-0-1",
+     "p": "O que é uma interface?",
+     "r": "Um **contrato** que declara métodos sem corpo. Declarada com `public interface`."
+    },
+    {
+     "id": "t-INT-0-2",
+     "p": "Como uma classe usa uma interface?",
+     "r": "Com **implements**, e é obrigada a implementar todos os métodos dela."
+    },
+    {
+     "id": "t-INT-0-3",
+     "p": "`new Tributavel()` sendo Tributavel uma interface",
+     "r": "**Não compila.** Interface não é instanciada. Mas `Tributavel t = new Salario(...)` é válido."
+    },
+    {
+     "id": "t-INT-0-4",
+     "p": "Quantas interfaces uma classe pode implementar?",
+     "r": "**Várias** (`implements A, B`). Já `extends` é só uma classe."
+    },
+    {
+     "id": "t-INT-0-5",
+     "p": "`class Pagamento extends IPagamento` (IPagamento interface)",
+     "r": "**Não compila.** Classe implementa interface com `implements`."
+    },
+    {
+     "id": "t-INT-0-6",
+     "p": "Interface x classe abstrata",
+     "r": "A abstrata pode ter atributos, construtor e métodos com corpo; a interface declara os métodos."
     }
    ]
   },
